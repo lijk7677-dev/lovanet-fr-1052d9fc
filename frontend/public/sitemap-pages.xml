@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://lovanet.fr/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://lovanet.fr/anime-moments</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lovanet.fr/decouvrir</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lovanet.fr/shop</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lovanet.fr/anime-catalog</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lovanet.fr/anime-countdown</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/chaine-youtube</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/lecteurs-video</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/prime-video</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/tiktok</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/actualites</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lovanet.fr/leaderboard</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://lovanet.fr/profile</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lovanet.fr/login</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://lovanet.fr/contact</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://lovanet.fr/legals</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+</urlset>

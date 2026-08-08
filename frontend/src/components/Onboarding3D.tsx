@@ -307,7 +307,7 @@ export const Onboarding3D = () => {
         initial={{ opacity: 0, y: 50, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         whileHover={{ scale: 1.05 }}
-        className="fixed bottom-6 right-6 z-[60] cursor-pointer"
+        className="fixed bottom-5 right-3 z-[60] cursor-pointer sm:right-4 md:bottom-6 md:right-6"
         onClick={() => { setMinimized(false); setStep(0); }}
       >
         <div className="relative w-16 h-16 rounded-full border border-white/20 bg-black/40 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.3)] overflow-hidden">
@@ -332,7 +332,7 @@ export const Onboarding3D = () => {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="fixed bottom-6 left-6 right-6 md:left-auto md:w-[400px] z-[60] pointer-events-auto"
+        className="fixed bottom-5 left-4 right-4 z-[60] pointer-events-auto sm:left-5 sm:right-5 md:bottom-6 md:left-auto md:right-6 md:w-[400px]"
       >
         <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-black/40 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.05)_inset]">
           

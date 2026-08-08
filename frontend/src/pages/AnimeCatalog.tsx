@@ -1,6 +1,8 @@
+const CATALOG_TOP_VIDEO = "/catalogue-banner.mp4";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import NeonFooterBar from "@/components/NeonFooterBar";
 import MangaNeonBar from "@/components/MangaNeonBar";
 import { Navbar } from "@/components/Navbar";
@@ -115,6 +117,29 @@ const CATALOG_VERSION_LABELS: Record<string, string> = {
   endub: "🇬🇧 English Dub",
 };
 
+const TRANSLATION_LANGUAGE_OPTIONS = [
+  { code: "fr", label: "Français" },
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "de", label: "Deutsch" },
+  { code: "it", label: "Italiano" },
+  { code: "pt", label: "Português" },
+  { code: "nl", label: "Nederlands" },
+  { code: "pl", label: "Polski" },
+  { code: "ro", label: "Română" },
+  { code: "tr", label: "Türkçe" },
+  { code: "ar", label: "العربية" },
+  { code: "hi", label: "हिन्दी" },
+  { code: "id", label: "Bahasa Indonesia" },
+  { code: "ja", label: "日本語" },
+  { code: "ko", label: "한국어" },
+  { code: "zh", label: "中文" },
+  { code: "ru", label: "Русский" },
+  { code: "uk", label: "Українська" },
+  { code: "sv", label: "Svenska" },
+  { code: "vi", label: "Tiếng Việt" },
+];
+
 
 function normalizeStatus(raw: string | undefined | null): string | undefined {
   if (!raw) return undefined;
@@ -178,6 +203,7 @@ export default function AnimeCatalog() {
   const [sortBy, setSortBy] = useState<"default" | "newest" | "score" | "alpha">("default");
   const [search, setSearch] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [translationLang, setTranslationLang] = useState<string>("fr");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [topCardCount, setTopCardCount] = useState(8);
   useEffect(() => {
@@ -583,6 +609,14 @@ export default function AnimeCatalog() {
     return ids;
   }, [detailTrailers, activeTrailerLang, activePlayer]);
 
+  const getCatalogTrailerCandidatesForLang = (lang: string): string[] => {
+    const ids = extractTrailerIds(detailTrailers[lang]);
+    if (lang === "vo" && activePlayer?.trailer?.id && !ids.includes(activePlayer.trailer.id)) {
+      ids.push(activePlayer.trailer.id);
+    }
+    return ids;
+  };
+
   const catalogActiveTrailerId = useMemo<string | undefined>(() => {
     if (catalogTrailerCandidates.length === 0) return activePlayer?.trailer?.id;
     return catalogTrailerCandidates[Math.min(catalogCandidateIndex, catalogTrailerCandidates.length - 1)];
@@ -602,10 +636,35 @@ export default function AnimeCatalog() {
   const handleCatalogTrailerUnavailable = () => {
     if (catalogCandidateIndex + 1 < catalogTrailerCandidates.length) {
       setCatalogCandidateIndex(catalogCandidateIndex + 1);
-    } else {
-      if (activePlayer?.id != null) setVideoStatus(activePlayer.id, "unavailable");
-      setPlayerMode("fallback");
+      return;
     }
+
+    const currentLangIndex = Math.max(availableCatalogLangs.indexOf(activeTrailerLang), 0);
+    for (let step = 1; step < availableCatalogLangs.length; step += 1) {
+      const nextLang = availableCatalogLangs[(currentLangIndex + step) % availableCatalogLangs.length];
+      const nextCandidates = getCatalogTrailerCandidatesForLang(nextLang);
+      if (nextCandidates.length > 0) {
+        setActiveTrailerLang(nextLang);
+        setCatalogCandidateIndex(0);
+        setPlayerMode("video");
+        return;
+      }
+    }
+
+    const sequence = playerQueue.length ? playerQueue : filteredSorted;
+    if (activePlayer && sequence.length > 1) {
+      const currentIndex = sequence.findIndex((media) => media.id === activePlayer.id);
+      const nextIndex = currentIndex === -1 || currentIndex === sequence.length - 1 ? 0 : currentIndex + 1;
+      const nextMedia = sequence[nextIndex];
+      if (nextMedia && nextMedia.id !== activePlayer.id) {
+        setPlayerMode("video");
+        activatePlayer(nextMedia, { unlockSound: soundUnlocked });
+        return;
+      }
+    }
+
+    if (activePlayer?.id != null) setVideoStatus(activePlayer.id, "unavailable");
+    setPlayerMode("fallback");
   };
 
   // Reset the candidate cursor when the language or the active title changes.
@@ -643,8 +702,12 @@ export default function AnimeCatalog() {
     translateNow: translateCatalogNow,
   } = useFrenchTranslation(translationTexts, {
     auto: true,
-    storageKey: "lovanet.catalog.translation.auto.v1",
+    storageKey: `lovanet.catalog.translation.auto.${translationLang}.v1`,
+    targetLang: translationLang,
   });
+
+  const translationLangLabel =
+    TRANSLATION_LANGUAGE_OPTIONS.find((option) => option.code === translationLang)?.label || translationLang.toUpperCase();
 
   const translatedMediaTitle = (media: Media | null | undefined) => getTranslatedText(mediaTitle(media));
   const translatedMediaDescription = (media: Media | null | undefined) => getTranslatedText(mediaDescription(media));
@@ -780,7 +843,7 @@ export default function AnimeCatalog() {
   const openMiniPlayer = async () => {
     if (!activePlayer) return;
     const trailerUrl = hasTrailer(activePlayer)
-      ? `https://www.youtube-nocookie.com/embed/${activePlayer.trailer?.id}?autoplay=1&mute=${soundUnlocked ? 0 : 1}&controls=0&rel=0&modestbranding=1&playsinline=1`
+      ? buildYouTubeEmbedUrl(activePlayer.trailer?.id || "", { autoplay: true, muted: !soundUnlocked, controls: false, playsInline: true })
       : null;
 
     try {
@@ -986,12 +1049,13 @@ export default function AnimeCatalog() {
               <div className="relative grid gap-6 lg:grid-cols-[1.15fr_.85fr] lg:items-end">
                 <div className="relative min-h-[140px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[rgba(255,255,255,0.015)]" data-testid="catalog-premium-hero-spacer">
                   <video
-                    src="/custom_video_lovanet.mp4"
+                    src={CATALOG_TOP_VIDEO}
                     autoPlay
                     muted
                     loop
                     playsInline
-                    className="absolute inset-0 h-full w-full object-cover opacity-80"
+                    preload="metadata"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-6">
@@ -1184,6 +1248,27 @@ export default function AnimeCatalog() {
                             <h2 className="max-w-2xl font-display text-2xl font-black text-white sm:text-3xl" data-testid="catalog-player-fallback-title">
                               {showTranslatedCards ? translatedMediaTitle(activePlayer) : mediaTitle(activePlayer)}
                             </h2>
+                            <div className="flex flex-wrap items-center gap-2" data-testid="catalog-player-fallback-translation-controls">
+                              <span className="text-[11px] uppercase tracking-[0.2em] text-white/58">Traduction</span>
+                              <Select value={translationLang} onValueChange={setTranslationLang}>
+                                <SelectTrigger className="h-9 w-[210px] rounded-xl border-white/20 bg-black/50 text-white">
+                                  <SelectValue placeholder="Choisir une langue" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-72 bg-black/95 text-white">
+                                  {TRANSLATION_LANGUAGE_OPTIONS.map((option) => (
+                                    <SelectItem key={option.code} value={option.code}>{option.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <TranslationToggleButton
+                                active={showTranslatedCards}
+                                loading={translationsLoading}
+                                targetLangLabel={translationLangLabel}
+                                onTranslate={translateCatalogNow}
+                                onToggle={() => setShowTranslatedCards((value) => !value)}
+                                dataTestId="catalog-player-fallback-translate-toggle-button"
+                              />
+                            </div>
                             <p className="max-w-2xl text-sm leading-7 text-white/72" data-testid="catalog-player-fallback-description">
                               {showTranslatedCards ? translatedMediaDescription(activePlayer) : mediaDescription(activePlayer)}
                             </p>
@@ -1218,6 +1303,27 @@ export default function AnimeCatalog() {
                           <h2 className="font-display text-2xl font-black leading-tight text-white sm:text-3xl" data-testid="catalog-player-title">
                             {showTranslatedCards ? translatedMediaTitle(activePlayer) : mediaTitle(activePlayer)}
                           </h2>
+                          <div className="flex flex-wrap items-center gap-2" data-testid="catalog-player-translation-controls">
+                            <span className="text-[11px] uppercase tracking-[0.2em] text-white/58">Traduction</span>
+                            <Select value={translationLang} onValueChange={setTranslationLang}>
+                              <SelectTrigger className="h-9 w-[210px] rounded-xl border-white/20 bg-black/50 text-white">
+                                <SelectValue placeholder="Choisir une langue" />
+                              </SelectTrigger>
+                              <SelectContent className="max-h-72 bg-black/95 text-white">
+                                {TRANSLATION_LANGUAGE_OPTIONS.map((option) => (
+                                  <SelectItem key={option.code} value={option.code}>{option.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <TranslationToggleButton
+                              active={showTranslatedCards}
+                              loading={translationsLoading}
+                              targetLangLabel={translationLangLabel}
+                              onTranslate={translateCatalogNow}
+                              onToggle={() => setShowTranslatedCards((value) => !value)}
+                              dataTestId="catalog-player-translate-toggle-button"
+                            />
+                          </div>
                           <p className="max-w-4xl text-sm leading-7 text-white/72 sm:text-base" data-testid="catalog-player-description">
                             {showTranslatedCards ? translatedMediaDescription(activePlayer) : mediaDescription(activePlayer)}
                           </p>
@@ -1464,17 +1570,6 @@ export default function AnimeCatalog() {
                 </Button>
               </div>
             )}
-
-
-            <div className="flex justify-end">
-              <TranslationToggleButton
-                active={showTranslatedCards}
-                loading={translationsLoading}
-                onTranslate={translateCatalogNow}
-                onToggle={() => setShowTranslatedCards((value) => !value)}
-                dataTestId="catalog-translate-toggle-button"
-              />
-            </div>
 
             {recommendations.length > 0 && !search && filterGenre === "all" && (
               <div className="mb-8" data-testid="catalog-recommendations-section">

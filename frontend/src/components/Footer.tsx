@@ -1,24 +1,20 @@
 import { Link } from "react-router-dom";
-import { Youtube, ShoppingBag, Newspaper, Compass, Film, PlayCircle } from "lucide-react";
+import { Youtube, ShoppingBag, Newspaper, Compass, Film, PlayCircle, Home, Music2, Clapperboard, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import footerLovanetZoneVideo from "@/assets/footer-lovanet-zone-video.mp4";
 
-const footerLinks = [
-  { to: "/", label: "Portail" },
-  { to: "/anime-moments", label: "Anime Moments" },
-  { to: "/decouvrir", label: "Univers Lovanet" },
-  { to: "/lecteurs-video", label: "Lecteurs vidéo" },
-  { to: "/actualites", label: "Actualités" },
-  { to: "/shop", label: "Boutique" },
-];
-
-const destinations = [
-  { to: "/anime-moments", label: "Anime Moments", icon: Film },
-  { to: "/decouvrir", label: "Découvrir", icon: Compass },
-  { to: "/chaine-youtube", label: "YouTube", icon: Youtube },
-  { to: "/prime-video", label: "Prime Vidéo", icon: PlayCircle },
-  { to: "/actualites", label: "Actualités", icon: Newspaper },
-  { to: "/shop", label: "Shop", icon: ShoppingBag },
+// Unique destinations — no duplicates between nav and content
+const allDestinations = [
+  { to: "/", label: "Portail", icon: Home, color: "#a78bfa" },
+  { to: "/anime-moments", label: "Anime Moments", icon: Film, color: "#f472b6" },
+  { to: "/decouvrir", label: "Découvrir", icon: Compass, color: "#22d3ee" },
+  { to: "/chaine-youtube", label: "YouTube", icon: Youtube, color: "#ef4444" },
+  { to: "/tiktok", label: "TikTok", icon: Music2, color: "#ec4899" },
+  { to: "/prime-video", label: "Prime Vidéo", icon: PlayCircle, color: "#3b82f6" },
+  { to: "/lecteurs-video", label: "Lecteurs Vidéo", icon: Clapperboard, color: "#8b5cf6" },
+  { to: "/anime-countdown", label: "À venir", icon: Clock, color: "#f59e0b" },
+  { to: "/actualites", label: "Actualités", icon: Newspaper, color: "#10b981" },
+  { to: "/shop", label: "Boutique", icon: ShoppingBag, color: "#f97316" },
 ];
 
 const footerPanel =
@@ -40,6 +36,7 @@ export const Footer = () => {
                 playsInline
                 preload="auto"
                 data-testid="footer-lovanet-video"
+                data-bg-video
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[rgba(6,11,24,0.88)] via-[rgba(7,12,24,0.56)] to-[rgba(7,12,24,0.2)]" />
               <div className="pointer-events-none absolute inset-0 opacity-18 mix-blend-screen bg-[linear-gradient(110deg,transparent_16%,rgba(255,255,255,0.16)_28%,transparent_42%,transparent_64%,rgba(255,255,255,0.12)_74%,transparent_88%)] animate-[shimmer_9s_linear_infinite]" />
@@ -61,40 +58,30 @@ export const Footer = () => {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="theme-subpanel px-4 py-5">
-              <h4 className="theme-text-muted mb-4 text-[11px] uppercase tracking-[0.3em]">Navigation</h4>
-              <ul className="space-y-3 text-sm theme-text-main">
-                {footerLinks.map((item) => (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className="theme-link-inline transition-colors"
-                      data-testid={`footer-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="theme-subpanel px-4 py-5">
-              <h4 className="theme-text-muted mb-4 text-[11px] uppercase tracking-[0.3em]">Destinations</h4>
-              <ul className="grid gap-3 text-sm theme-text-main">
-                {destinations.map((item) => (
-                  <li key={item.to}>
-                    <Link
-                      to={item.to}
-                      className="theme-link-inline inline-flex items-center gap-2 transition-colors"
-                      data-testid={`footer-destination-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      <item.icon className="h-4 w-4 neon-rgb-icon" />
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {/* Premium unified navigation hub — no duplicates */}
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] uppercase tracking-[0.3em] theme-text-muted px-1">Navigation & Destinations</p>
+            <div className="grid grid-cols-2 gap-2">
+              {allDestinations.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="group flex items-center gap-2.5 rounded-xl border border-white/8 px-3 py-2.5 text-sm font-medium transition-all hover:border-white/20 hover:scale-[1.02]"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  data-testid={`footer-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  <span
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg"
+                    style={{ backgroundColor: `${item.color}25`, color: item.color }}
+                  >
+                    <item.icon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="theme-text-main text-xs font-semibold leading-tight">{item.label}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>

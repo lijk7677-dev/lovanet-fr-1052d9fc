@@ -2,6 +2,7 @@ import { X, Minimize2, Move } from "lucide-react";
 import { usePiP } from "@/contexts/PiPContext";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 
 export function GlobalPiPWidget() {
   const { videoId, closeVideo } = usePiP();
@@ -58,7 +59,7 @@ export function GlobalPiPWidget() {
         </button>
       </div>
       <iframe
-        src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=0`}
+        src={buildYouTubeEmbedUrl(videoId, { autoplay: true, muted: false, controls: true, playsInline: true })}
         className="w-full h-full pointer-events-auto"
         frameBorder="0"
         allow="autoplay; encrypted-media"

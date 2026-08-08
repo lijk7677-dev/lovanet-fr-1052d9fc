@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import { Helmet } from "react-helmet-async";
 import { PageShell } from "@/components/PageShell";
 import { HubEmbedFrame } from "@/components/HubEmbedFrame";
@@ -498,7 +499,7 @@ const Shop = () => {
                   {active.video && (
                     <div className="aspect-video rounded-xl overflow-hidden border border-border">
                       <iframe
-                        src={`https://www.youtube.com/embed/${active.video}`}
+                        src={buildYouTubeEmbedUrl(active.video, { autoplay: true, muted: false, controls: true, playsInline: true, nocookie: false })}
                         title={active.name}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                         className="w-full h-full"

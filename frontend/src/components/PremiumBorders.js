@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 
 const Leaf = ({ delay, x, duration }) => (
@@ -41,6 +41,26 @@ const Cloud = ({ delay, y, duration, scale }) => (
 );
 
 export const PremiumBorders = () => {
+  const [hidden, setHidden] = useState(() => document.body.hasAttribute("data-hide-decors"));
+  const [customDecors, setCustomDecors] = useState(() => {
+    if (document.body.hasAttribute("data-custom-decors")) return true;
+    try {
+      return localStorage.getItem("lovanet:custom-decors-enabled") === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  // React to toggle changes via body attribute mutations
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setHidden(document.body.hasAttribute("data-hide-decors"));
+      setCustomDecors(document.body.hasAttribute("data-custom-decors"));
+    });
+    obs.observe(document.body, { attributes: true, attributeFilter: ["data-hide-decors", "data-custom-decors"] });
+    return () => obs.disconnect();
+  }, []);
+
   const leaves = useMemo(() => Array.from({ length: 20 }).map((_, i) => ({
     id: `leaf-${i}`,
     x: Math.random() * 100,
@@ -57,8 +77,10 @@ export const PremiumBorders = () => {
     color: i % 2 === 0 ? 'bg-cyan-300' : 'bg-fuchsia-300'
   })), []);
 
+  if (customDecors) return null;
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-[0] overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[0] overflow-hidden" data-3d-decor data-animated-bg>
       {/* Global Background Video */}
       <video
         autoPlay
@@ -71,11 +93,14 @@ export const PremiumBorders = () => {
         className="absolute inset-0 w-full h-full object-cover z-[-1] opacity-60"
         style={{ pointerEvents: 'none' }}
         poster="/global-bg-poster.jpg"
+        data-bg-video
       >
         <source src="/global-bg-mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
         <source src="/global-bg-web.mp4" type="video/mp4" />
       </video>
-      
+
+      {/* All animated décors hidden when toggle is active */}
+      {!hidden && (<>
       {/* Ciel & Nuages (Haut) */}
       <div className="absolute top-0 left-0 right-0 h-[40vh] bg-gradient-to-b from-blue-600/30 via-indigo-600/10 to-transparent">
         <Cloud delay={0} y="5%" duration={40} scale={1} />
@@ -132,6 +157,7 @@ export const PremiumBorders = () => {
           />
         ))}
       </div>
+      </>)}
     </div>
   );
 };

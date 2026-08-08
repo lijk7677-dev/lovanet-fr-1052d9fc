@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { PerformanceProvider } from "@/contexts/PerformanceContext";
 import Index from "./pages/Index";
 import RootLandingPage from "./pages/RootLandingPage";
 import ChaineYoutube from "./pages/ChaineYoutube";
@@ -41,6 +42,7 @@ import { GlobalTranslateWidget } from "./components/GlobalTranslateWidget";
 import { PiPProvider } from "./contexts/PiPContext";
 import { GamificationProvider } from "./contexts/GamificationContext";
 import { GlobalPiPWidget } from "./components/GlobalPiPWidget";
+import { Mobile3DSettingsToggle } from "./components/Mobile3DSettingsToggle";
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from "@/lib/seoI18n";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
@@ -136,6 +138,7 @@ const AppShell = () => {
             </Routes>
           </AnimatePresence>
       {!isHubPreviewRoute && <ThemeBubble />}
+      {!isHubPreviewRoute && <Mobile3DSettingsToggle />}
       {!isHubPreviewRoute && <CartDrawer />}
       {!isHubPreviewRoute && <GoogleTranslate />}
         </CartProvider>
@@ -150,7 +153,9 @@ const App = () => (
       <TooltipProvider>
         <BrowserRouter>
           <AuthProvider>
-            <AppShell />
+            <PerformanceProvider>
+              <AppShell />
+            </PerformanceProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

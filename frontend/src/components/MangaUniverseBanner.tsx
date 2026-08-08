@@ -5,10 +5,11 @@ import mangaBanner from "@/assets/manga-banner.jpg";
 import { ResilientVideoFrame } from "@/components/ResilientVideoFrame";
 
 type BgMode = "image" | "color" | "media" | "video";
+const DEFAULT_MANGA_UNIVERSE_VIDEO = "/manga-universe-banner.mp4";
 
 export const MangaUniverseBanner = ({ videoIds }: { videoIds?: string[] } = {}) => {
   const hasVideos = !!videoIds && videoIds.length > 0;
-  const [bgMode, setBgMode] = useState<BgMode>(hasVideos ? "video" : "image");
+  const [bgMode, setBgMode] = useState<BgMode>("video");
   const [bgColor, setBgColor] = useState("#0b0b16");
   const [bgMedia, setBgMedia] = useState<string>("");
   const [mediaKind, setMediaKind] = useState<"image" | "video">("image");
@@ -44,19 +45,31 @@ export const MangaUniverseBanner = ({ videoIds }: { videoIds?: string[] } = {}) 
         className="rgb-neon group relative block overflow-hidden rounded-3xl shadow-[0_40px_120px_-40px_hsl(var(--neon-magenta)/0.5)]"
         style={{ background: bgMode === "color" ? bgColor : undefined }}
       >
-        {bgMode === "video" && hasVideos && (
+        {bgMode === "video" && (
           <div className="relative w-full h-56 sm:h-72 md:h-80 lg:h-96 overflow-hidden bg-black">
-            <ResilientVideoFrame
-              videoId={videoIds![videoIdx]}
-              title="Univers Manga & Anime — bannière animée"
-              seed={`manga-banner-${videoIds![videoIdx]}`}
-              searchQuery="anime moments officiel manga trailer"
-              poster={mangaBanner}
-              className="absolute inset-0 h-full w-full"
-              fallbackBadge="Bannière de secours"
-              fallbackDescription="Une vidéo de remplacement du site est utilisée pour garder la bannière active."
-              dataTestId="manga-banner-resilient-frame"
-            />
+            {(hasVideos && videoIds?.length) ? (
+              <ResilientVideoFrame
+                videoId={videoIds![videoIdx]}
+                title="Univers Manga & Anime — bannière animée"
+                seed={`manga-banner-${videoIds![videoIdx]}`}
+                searchQuery="anime moments officiel manga trailer"
+                poster={mangaBanner}
+                className="absolute inset-0 h-full w-full"
+                fallbackBadge="Bannière de secours"
+                fallbackDescription="Une vidéo de remplacement du site est utilisée pour garder la bannière active."
+                dataTestId="manga-banner-resilient-frame"
+              />
+            ) : (
+              <video
+                src={DEFAULT_MANGA_UNIVERSE_VIDEO}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 h-full w-full object-cover"
+                data-bg-video
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/60" />
           </div>
         )}
@@ -78,6 +91,7 @@ export const MangaUniverseBanner = ({ videoIds }: { videoIds?: string[] } = {}) 
               loop
               muted
               playsInline
+              data-bg-video
               className="w-full h-56 sm:h-72 md:h-80 lg:h-96 object-cover"
             />
           ) : (

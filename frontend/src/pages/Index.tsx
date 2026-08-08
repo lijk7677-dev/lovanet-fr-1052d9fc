@@ -6,10 +6,10 @@ import { PageShell } from "@/components/PageShell";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import MiniCatalogOrb from "@/components/MiniCatalogOrb";
 import AnimeMomentsPresentation from "@/components/AnimeMomentsPresentation";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import crystalCity from "@/assets/crystal-city.jpg.asset.json";
-import animeMomentsTop from "@/assets/anime-moments-top.mp4";
 
-const ANIME_MOMENTS_CAPTURE_VIDEO = animeMomentsTop;
+const ANIME_MOMENTS_CAPTURE_VIDEO = "/catalogue-banner.mp4";
 
 import NeonFooterBar from "@/components/NeonFooterBar";
 import MangaNeonBar from "@/components/MangaNeonBar";
@@ -88,7 +88,7 @@ const AnimePreview = ({
         <iframe
           key={trailerId}
           className="absolute inset-0 w-full h-full pointer-events-none"
-          src={`https://www.youtube-nocookie.com/embed/${trailerId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${trailerId}&modestbranding=1&playsinline=1&rel=0`}
+          src={buildYouTubeEmbedUrl(trailerId, { autoplay: true, muted: true, controls: false, loop: true, playlist: trailerId, playsInline: true })}
           title="Aperçu animé"
           loading="lazy"
           tabIndex={-1}
@@ -224,7 +224,7 @@ const Index = () => {
   const platforms = [
     { to: "/chaine-youtube", title: "YouTube", desc: "Vidéos anime et shorts officiels", icon: Youtube,
       preview: { kind: "youtube" as const, sources: ytForYoutube } },
-    { to: "/prime-video", title: "Prime Vidéo", desc: "Lecture multi-plateforme immersive", icon: Play,
+    { to: "/prime-video", title: "Prime Vidéo", desc: "Lecture multi-plateforme premium", icon: Play,
       preview: { kind: "youtube" as const, sources: ytForPrime } },
     { to: "/tiktok", title: "TikTok", desc: "Posts courts et réactions rapides", icon: Music2,
       preview: { kind: "tiktok" as const, sources: [], loadTiktokFromDB: true } },
@@ -333,6 +333,7 @@ const Index = () => {
           ))}
         </div>
       </section>
+
     </PageShell>
   );
 };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Ban, Play } from "lucide-react";
 import { getVideoStatusSync } from "@/lib/videoAvailability";
 import { siteFallbackImage } from "@/lib/mediaFallback";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 
 type Props = {
   videoId: string;
@@ -95,14 +96,14 @@ export const HoverPreview = ({
         <div className={iframeWrap}>
           {vertical ? (
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&rel=0&playsinline=1&loop=1&playlist=${videoId}&modestbranding=1`}
+              src={buildYouTubeEmbedUrl(videoId, { autoplay: true, muted, controls: false, loop: true, playlist: videoId, playsInline: true, nocookie: false })}
               title={title}
               allow="autoplay; encrypted-media; picture-in-picture"
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-full w-[178%] border-0"
             />
           ) : (
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&rel=0&playsinline=1&loop=1&playlist=${videoId}&modestbranding=1`}
+              src={buildYouTubeEmbedUrl(videoId, { autoplay: true, muted, controls: false, loop: true, playlist: videoId, playsInline: true, nocookie: false })}
               title={title}
               allow="autoplay; encrypted-media; picture-in-picture"
               className="w-full h-full border-0"

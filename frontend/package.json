@@ -83,8 +83,18 @@
   },
   "scripts": {
     "start": "craco start",
+    "prebuild": "npm run seo:all",
     "build": "craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "seo:generate": "node scripts/seo-generate-feeds.mjs",
+    "seo:validate": "node scripts/seo-validate.mjs",
+    "seo:all": "npm run seo:generate && npm run seo:validate",
+    "seo:ping": "node scripts/seo-ping.mjs",
+    "seo:gsc:doctor": "node scripts/seo-gsc-doctor.mjs",
+    "seo:gsc": "node scripts/seo-gsc-submit.mjs",
+    "seo:publish": "npm run seo:all && npm run seo:ping",
+    "seo:publish:all": "npm run seo:all && npm run seo:ping && npm run seo:gsc",
+    "deploy:prepare": "npm run seo:publish:all"
   },
   "browserslist": {
     "production": [

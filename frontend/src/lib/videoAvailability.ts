@@ -38,8 +38,8 @@ function persist() {
 
 /** Synchronous read — call `warmVideoAvailability()` once at mount to hydrate. */
 export function getVideoStatusSync(animeId: number | string): VideoAvailability | undefined {
-  if (!mem) return "ok";
-  return mem[String(animeId)]?.status || "ok";
+  if (!mem) return undefined;
+  return mem[String(animeId)]?.status;
 }
 
 export async function warmVideoAvailability(): Promise<void> {

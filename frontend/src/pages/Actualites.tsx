@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import { Helmet } from "react-helmet-async";
 import { useGamification } from "@/contexts/GamificationContext";
 import { Link, useParams } from "react-router-dom";
@@ -34,6 +36,8 @@ import { toast } from "@/components/ui/sonner";
 const PRIMARY_SITE = "https://lovanet.fr";
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const PAGE_SIZE = 24;
+
+const ACTUALITES_BANNER_VIDEO = "https://drive.google.com/uc?export=download&id=1Rf2nvttvwP8pLXhgT5pU8vFkPwkwy92N";
 
 const CATEGORY_CONFIG: Record<string, { label: string; eyebrow: string; accent: string; glow: string }> = {
   anime: { label: "Anime Pulse", eyebrow: "Anime", accent: "var(--theme-neon-a)", glow: "rgba(56,189,248,0.24)" },
@@ -173,6 +177,230 @@ function articleParagraphs(item?: NewsItem) {
   return paragraphs;
 }
 
+function buildAutoReaderItems(home: NewsHomePayload | null, listing: NewsListingPayload | null) {
+  const pool = [
+    ...(home?.latest || []),
+    ...(home?.trending || []),
+    ...(listing?.items || []),
+  ];
+  const unique = new Map<string, NewsItem>();
+  pool.forEach((item) => {
+    if (item.slug && !unique.has(item.slug)) unique.set(item.slug, item);
+  });
+  // Return ALL unique articles for full rotation cycle instead of limiting to 9
+  return Array.from(unique.values());
+}
+
+const LANGUAGE_OPTIONS = [
+  { code: "fr", label: "Français" },
+  { code: "en", label: "English" },
+  { code: "es", label: "Español" },
+  { code: "de", label: "Deutsch" },
+  { code: "it", label: "Italiano" },
+  { code: "pt", label: "Português" },
+  { code: "ja", label: "日本語" },
+  { code: "zh", label: "中文" },
+];
+
+async function translateText(text: string, targetLanguage: string): Promise<string> {
+  if (targetLanguage === "fr" || !text) return text;
+  try {
+    const response = await fetch(`${API}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts: [text], target_lang: targetLanguage }),
+    });
+    if (!response.ok) throw new Error(`Translate error: ${response.status}`);
+    const data = await response.json();
+    const translations = data.translations || [];
+    return (translations[0]?.translated_text || text);
+  } catch (err) {
+    console.error("Translation failed:", err);
+    return text;
+  }
+}
+
+function formatArticleReadStatus(item?: NewsItem) {
+  const sourceLabel = item?.source_group || item?.source_name || "Source premium";
+  const published = formatDate(item?.published_at);
+  return `${sourceLabel} · ${published}`;
+}
+
+function AutoArticleViewer({ items }: { items: NewsItem[] }) {
+  const [readerIndex, setReaderIndex] = useState(0);
+  const [countdown, setCountdown] = useState(19);
+  const [isPaused, setIsPaused] = useState(false);
+  const [translationLang, setTranslationLang] = useState<string | null>(null);
+  const [translatedContent, setTranslatedContent] = useState<{ title: string; description: string; paragraphs: string[] } | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const item = items[readerIndex] || items[0];
+  const paragraphs = useMemo(() => articleParagraphs(item), [item]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    // Clear translation when article changes
+    setTranslationLang(null);
+    setTranslatedContent(null);
+  }, [item]);
+
+  const handleTranslate = async (lang: string) => {
+    if (lang === translationLang) {
+      setTranslationLang(null);
+      setTranslatedContent(null);
+      return;
+    }
+    setIsTranslating(true);
+    try {
+      const [translatedTitle, translatedDesc, ...translatedParagraphs] = await Promise.all([
+        translateText(item.title, lang),
+        translateText(stripHtml(item.description || item.excerpt || item.content).slice(0, 180), lang),
+        ...paragraphs.map((p) => translateText(p, lang)),
+      ]);
+      setTranslatedContent({
+        title: translatedTitle,
+        description: translatedDesc,
+        paragraphs: translatedParagraphs,
+      });
+      setTranslationLang(lang);
+    } catch (err) {
+      console.error("Translation error:", err);
+      toast.error("Traduction échouée", { description: "Impossible de traduire le contenu pour le moment." });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!items.length || isPaused) return undefined;
+    setCountdown(19);
+    const interval = window.setInterval(() => {
+      setCountdown((seconds) => (seconds > 0 ? seconds - 1 : 0));
+    }, 1000);
+    const timeout = window.setTimeout(() => {
+      setReaderIndex((index) => (index + 1) % items.length);
+    }, 19000);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(timeout);
+    };
+  }, [readerIndex, items.length, isPaused]);
+
+  if (!items.length) return null;
+
+  const displayTitle = translatedContent?.title || item.title;
+  const displayDescription = translatedContent?.description || stripHtml(item.description || item.excerpt || item.content).slice(0, 180);
+  const displayParagraphs = translatedContent?.paragraphs || paragraphs;
+
+  return (
+    <section className="grid gap-6 xl:grid-cols-[0.45fr_0.55fr]" data-testid="actualites-auto-reader">
+      <div className="theme-panel-surface rounded-[2rem] border border-[var(--theme-border-soft)] overflow-hidden bg-black/25 shadow-[0_24px_90px_rgba(0,0,0,0.3)]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${item.slug}-visual`}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative aspect-[4/3] overflow-hidden bg-slate-950"
+          >
+            {item.embed_video ? (
+              <iframe
+                src={buildYouTubeEmbedUrl(item.embed_video, { autoplay: true, muted: true, controls: false, loop: true, playlist: item.embed_video, playsInline: true })}
+                title={item.title}
+                className="absolute inset-0 h-full w-full"
+                allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              />
+            ) : (
+              <img src={displayImage(item.image)} alt={item.title} className="absolute inset-0 h-full w-full object-cover" />
+            )}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.16),transparent_32%)]" />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="theme-panel-surface rounded-[2rem] border border-[var(--theme-border-soft)] bg-[rgba(5,10,24,0.82)] p-5 sm:p-6 shadow-[0_24px_90px_rgba(0,0,0,0.3)] flex flex-col">
+        <motion.div
+          key={`${item.slug}-content`}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -18 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+          className="flex-1 flex flex-col gap-4"
+        >
+          <div className="pb-4 border-b border-white/10">
+            <p className="text-sm font-semibold tracking-[0.02em] text-white">{displayTitle}</p>
+            <p className="mt-2 text-xs text-white/50">{formatArticleReadStatus(item)}</p>
+            {translationLang && <p className="mt-1 text-xs text-sky-300">{LANGUAGE_OPTIONS.find((l) => l.code === translationLang)?.label}</p>}
+          </div>
+
+          <div
+            ref={containerRef}
+            className="flex-1 space-y-4 overflow-y-auto pr-2 text-sm leading-7 text-white/80 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/15"
+          >
+            <motion.p
+              className="text-white/80"
+              initial={{ opacity: 0.5, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              {displayDescription}
+            </motion.p>
+            {displayParagraphs.map((paragraph, index) => (
+              <motion.p
+                key={`${item.slug}-paragraph-${index}`}
+                className="text-sm leading-7 text-white/80"
+                initial={{ opacity: 0.5, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.04 }}
+              >
+                {paragraph}
+              </motion.p>
+            ))}
+          </div>
+
+          <div className="space-y-3 pt-4 border-t border-white/10">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex gap-2 flex-wrap">
+                {items.map((_, index) => (
+                  <button
+                    key={`dot-${index}`}
+                    type="button"
+                    onClick={() => { setReaderIndex(index); setIsPaused(true); }}
+                    className={`h-2 rounded-full transition-all ${index === readerIndex ? "w-6 bg-sky-400" : "w-2 bg-white/20 hover:bg-white/40"}`}
+                    aria-label={`Aller à l'article ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <div className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.28em] text-white/75">
+                {countdown}s
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {LANGUAGE_OPTIONS.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleTranslate(lang.code)}
+                  disabled={isTranslating}
+                  className={`text-[11px] px-2 py-1 rounded-full transition-all border ${
+                    translationLang === lang.code
+                      ? "border-sky-400 bg-sky-400/20 text-sky-200"
+                      : "border-white/15 bg-white/5 text-white/70 hover:border-white/30 hover:bg-white/10"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 function collectionJsonLd(items: NewsItem[]) {
   return {
     "@context": "https://schema.org",
@@ -250,7 +478,7 @@ function NewsCard({ item, priority = false, testId }: { item: NewsItem; priority
           {item.embed_video ? (
             <div className="absolute inset-0 w-full h-full">
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${item.embed_video}?autoplay=1&mute=1&controls=0&modestbranding=1&loop=1&playlist=${item.embed_video}`}
+                src={buildYouTubeEmbedUrl(item.embed_video, { autoplay: true, muted: true, controls: false, loop: true, playlist: item.embed_video, playsInline: true })}
                 className="absolute inset-0 w-[120%] h-[120%] -left-[10%] -top-[10%] pointer-events-none"
                 style={{ objectFit: "cover" }}
                 frameBorder="0"
@@ -379,6 +607,9 @@ export default function Actualites() {
   const [home, setHome] = useState<NewsHomePayload | null>(null);
   const [listing, setListing] = useState<NewsListingPayload | null>(null);
   const [detail, setDetail] = useState<NewsDetailPayload | null>(null);
+  const [detailTranslationLang, setDetailTranslationLang] = useState<string | null>(null);
+  const [detailTranslatedContent, setDetailTranslatedContent] = useState<{ title: string; description: string; paragraphs: string[] } | null>(null);
+  const [isDetailTranslating, setIsDetailTranslating] = useState(false);
   const { incrementQuest, unlockAchievement } = useGamification();
   
   // Also hook into detail rendering for reading quests
@@ -501,6 +732,42 @@ export default function Actualites() {
     }
   };
 
+  const handleDetailTranslate = async (lang: string) => {
+    if (!detail?.item) return;
+    if (lang === detailTranslationLang) {
+      setDetailTranslationLang(null);
+      setDetailTranslatedContent(null);
+      return;
+    }
+    setIsDetailTranslating(true);
+    try {
+      const paragraphs = articleParagraphs(detail.item);
+      const [translatedTitle, translatedDesc, ...translatedParagraphs] = await Promise.all([
+        translateText(detail.item.title, lang),
+        translateText(stripHtml(detail.item.description || detail.item.excerpt || detail.item.content).slice(0, 260), lang),
+        ...paragraphs.map((p) => translateText(p, lang)),
+      ]);
+      setDetailTranslatedContent({
+        title: translatedTitle,
+        description: translatedDesc,
+        paragraphs: translatedParagraphs,
+      });
+      setDetailTranslationLang(lang);
+    } catch (err) {
+      console.error("Detail translation error:", err);
+      toast.error("Traduction échouée", { description: "Impossible de traduire le détail de l'article." });
+    } finally {
+      setIsDetailTranslating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (slug && detail?.item) {
+      setDetailTranslationLang(null);
+      setDetailTranslatedContent(null);
+    }
+  }, [slug, detail?.item]);
+
   const pageTitle = detail?.item
     ? `${detail.item.title} — Actualités premium Lovanet`
     : "Actualités premium anime, manga, gaming et pop culture — Lovanet";
@@ -528,6 +795,7 @@ export default function Actualites() {
     const start = (heroIndex + 1) % heroPool.length;
     return [heroPool[start], heroPool[(start + 1) % heroPool.length]].filter(Boolean);
   }, [heroPool, heroIndex, sideHero]);
+  const autoReaderItems = useMemo(() => buildAutoReaderItems(home, listing), [home, listing]);
   const totalPages = listing ? Math.max(1, Math.ceil((listing.total || 0) / PAGE_SIZE)) : 1;
   const sourceOptions = home?.sources || [];
   const categoryOptions = listing?.categories || [
@@ -555,6 +823,9 @@ export default function Actualites() {
 
   if (detail?.item) {
     const item = detail.item;
+    const displayTitle = detailTranslatedContent?.title || item.title;
+    const displayDescription = detailTranslatedContent?.description || stripHtml(item.description || item.excerpt || item.content).slice(0, 260);
+    const displayParagraphs = detailTranslatedContent?.paragraphs || detailParagraphs;
     return (
       <PageShell>
         <Helmet>
@@ -588,15 +859,32 @@ export default function Actualites() {
                   <ArticleBadge item={item} />
                 </div>
                 <h1 className="font-display text-3xl font-black leading-tight text-white md:text-4xl xl:text-5xl" data-testid="actualites-detail-title">
-                  {item.title}
+                  {displayTitle}
                 </h1>
+                {detailTranslationLang && <p className="text-xs text-sky-300">{LANGUAGE_OPTIONS.find((l) => l.code === detailTranslationLang)?.label}</p>}
                 <p className="max-w-3xl text-base leading-8 text-white/76" data-testid="actualites-detail-description">
-                  {stripHtml(item.description || item.excerpt || item.content).slice(0, 260)}
+                  {displayDescription}
                 </p>
                 <div className="flex flex-wrap gap-3 text-sm text-white/64">
                   <span className="theme-glass-chip rounded-full px-4 py-2" data-testid="actualites-detail-date">{formatDate(item.published_at)}</span>
                   <span className="theme-glass-chip rounded-full px-4 py-2" data-testid="actualites-detail-source">{item.source_name || item.source_group || "Source premium"}</span>
                   <span className="theme-glass-chip rounded-full px-4 py-2" data-testid="actualites-detail-relative">{relativeTime(item.published_at)}</span>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => handleDetailTranslate(lang.code)}
+                      disabled={isDetailTranslating}
+                      className={`text-[11px] px-2 py-1 rounded-full transition-all border ${
+                        detailTranslationLang === lang.code
+                          ? "border-sky-400 bg-sky-400/20 text-sky-200"
+                          : "border-white/15 bg-white/5 text-white/70 hover:border-white/30 hover:bg-white/10"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
                 </div>
               </div>
               <div className="relative overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.04]">
@@ -622,7 +910,7 @@ export default function Actualites() {
               </div>
 
               <div className="mt-8 space-y-5">
-                {detailParagraphs.map((paragraph, index) => (
+                {displayParagraphs.map((paragraph, index) => (
                   <p key={`${item.slug}-paragraph-${index}`} className="text-base leading-8 text-white/78" data-testid={`actualites-detail-paragraph-${index + 1}`}>
                     {paragraph}
                   </p>
@@ -747,20 +1035,34 @@ export default function Actualites() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(244,114,182,0.16),transparent_24%),radial-gradient(circle_at_82%_16%,rgba(56,189,248,0.16),transparent_22%),linear-gradient(135deg,rgba(255,255,255,0.03),transparent_42%)]" />
           <div className="relative grid gap-5 xl:grid-cols-[1.1fr_.9fr] xl:items-stretch">
             <div className="space-y-4 sm:space-y-5">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.28em] text-white/46">Anime · Manga · Gaming · Pop-culture JP</p>
-                <h1 className="mt-3 max-w-4xl font-display text-3xl font-black leading-[1.02] text-white sm:text-4xl md:text-5xl xl:text-6xl" data-testid="actualites-page-title">
-                  Actualités anime, manga.
-                </h1>
-              </div>
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-black/20 shadow-[0_15px_80px_rgba(0,0,0,0.15)] backdrop-blur-xl">
+                <video
+                  src="/actualites-banner.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  data-bg-video
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="relative grid gap-5 lg:grid-cols-[0.72fr_1fr] xl:grid-cols-[0.72fr_1fr] p-5 sm:p-6">
+                  <div className="flex flex-col justify-end rounded-[1.8rem] border border-white/10 bg-[rgba(0,0,0,0.32)] p-4" style={{ minHeight: 460 }} />
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.28em] text-white/46">Anime · Manga · Gaming · Pop-culture JP</p>
+                    <h1 className="mt-3 max-w-4xl font-display text-3xl font-black leading-[1.02] text-white sm:text-4xl md:text-5xl xl:text-6xl" data-testid="actualites-page-title">
+                      Actualités anime, manga.
+                    </h1>
 
-              <div className="flex flex-wrap gap-3">
-                <Button type="button" onClick={handleSync} className="btn-neon-rainbow rounded-full text-white" data-testid="actualites-sync-button">
-                  <RefreshCcw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} /> Actualiser les flux
-                </Button>
-                <Button asChild variant="glass" className="rounded-full text-white" data-testid="actualites-scroll-trending-button">
-                  <a href="#actualites-trending">Voir les tendances</a>
-                </Button>
+                    <div className="flex flex-wrap gap-3 mt-5">
+                      <Button type="button" onClick={handleSync} className="btn-neon-rainbow rounded-full text-white" data-testid="actualites-sync-button">
+                        <RefreshCcw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} /> Actualiser les flux
+                      </Button>
+                      <Button asChild variant="glass" className="rounded-full text-white" data-testid="actualites-scroll-trending-button">
+                        <a href="#actualites-trending">Voir les tendances</a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -787,6 +1089,8 @@ export default function Actualites() {
             </div>
           </div>
         </header>
+
+        {autoReaderItems.length > 0 && <AutoArticleViewer items={autoReaderItems} />}
 
         <section className="theme-panel-surface overflow-hidden rounded-[1.7rem] border border-[var(--theme-border-soft)] bg-transparent px-4 py-4 sm:px-5" data-testid="actualites-live-ticker">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -899,10 +1203,10 @@ export default function Actualites() {
                           >
                             <div>
                               <p className="text-sm font-semibold text-white">{item.name}</p>
-                              <p className="mt-2 text-xs text-white/68">{item.last_success_at ? `Dernier succès ${relativeTime(item.last_success_at)}` : "Flux en attente"}</p>
+                              <p className="mt-2 text-xs text-white/68">{item.last_success_at ? `Dernier succès ${relativeTime(item.last_success_at)}` : "Mise à jour en cours"}</p>
                             </div>
                             <span className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold ${item.status === "ok" ? "bg-emerald-500/12 text-emerald-200 border border-emerald-400/20" : "bg-amber-500/12 text-amber-200 border border-amber-400/20"}`}>
-                              {item.status === "ok" ? "OK" : "Degraded"}
+                              {item.status === "ok" ? "OK" : "Synchronisation partielle"}
                             </span>
                           </a>
                         ))}

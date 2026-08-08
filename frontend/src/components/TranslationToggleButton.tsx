@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 type TranslationToggleButtonProps = {
   active: boolean;
   loading?: boolean;
+  targetLangLabel?: string;
   onTranslate: () => void;
   onToggle: () => void;
   className?: string;
@@ -14,6 +15,7 @@ type TranslationToggleButtonProps = {
 export function TranslationToggleButton({
   active,
   loading = false,
+  targetLangLabel = "français",
   onTranslate,
   onToggle,
   className,
@@ -28,7 +30,7 @@ export function TranslationToggleButton({
       data-testid={dataTestId}
     >
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
-      {loading ? "Traduction..." : active ? "Version française active" : "Traduire en français"}
+      {loading ? "Traduction..." : active ? `Version ${targetLangLabel} active` : `Traduire en ${targetLangLabel}`}
     </Button>
   );
 }

@@ -6,6 +6,8 @@ import {
   Home,
   Mail,
   Menu,
+  Minimize2,
+  Maximize2,
   Music2,
   Play,
   ScrollText,
@@ -34,6 +36,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import GoogleTranslate from "@/components/GoogleTranslate";
 import { UserProfileWidget } from "@/components/UserProfileWidget";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { MobileNavFloater } from "@/components/MobileNavFloater";
+import { NavSuggestionsBar } from "@/components/NavSuggestionsBar";
+import { NavSuggestionsIndicator } from "@/components/NavSuggestionsIndicator";
 const navTestIds: Record<string, string> = {
   "/": "navbar-home-link",
   "/anime-moments": "navbar-anime-moments-link",
@@ -67,16 +72,16 @@ const getRotatingDestination = (slotIndex: number, rotationIndex: number) =>
 
 const megaSections = [
   { to: "/", label: "Portail", desc: "Nouvelle landing Lovanet", icon: Home },
-  { to: "/anime-moments", label: "Anime Moments", desc: "Page immersive historique", icon: Film },
+  { to: "/anime-moments", label: "Anime Moments", desc: "Page officielle historique", icon: Film },
   { to: "/tiktok", label: "TikTok", desc: "Shorts & réactions", icon: Music2 },
   { to: "/chaine-youtube", label: "YouTube", desc: "Vidéos & shorts officiels", icon: Youtube },
   { to: "/chaine-youtube/manga", label: "YouTube Manga", desc: "Chaîne dédiée manga", icon: Youtube },
-  { to: "/prime-video", label: "Prime Vidéo", desc: "Lecture immersive multi-plateforme", icon: Play },
-  { to: "/lecteurs-video", label: "Lecteur vidéo", desc: "Player immersif anime", icon: Film },
+  { to: "/prime-video", label: "Prime Vidéo", desc: "Lecture premium multi-plateforme", icon: Play },
+  { to: "/lecteurs-video", label: "Lecteur vidéo", desc: "Player anime premium", icon: Film },
   { to: "/anime-countdown", label: "Animés à venir", desc: "Countdown live des prochains épisodes", icon: Play },
   { to: "/anime-catalog", label: "Catalogue Animés", desc: "Carrousel 3D tendances", icon: Film },
-  { to: "/decouvrir", label: "Univers Lovanet", desc: "Vitrine SEO produits & vidéos", icon: Compass },
-  { to: "/actualites", label: "Actualités", desc: "News anime, vidéos, produits", icon: Sparkles },
+  { to: "/decouvrir", label: "Univers Lovanet", desc: "", icon: Compass },
+  { to: "/actualites", label: "Actualités", desc: "News anime", icon: Sparkles },
   { to: "/contact", label: "Contact", desc: "Écrire à l'équipe", icon: Mail },
   { to: "/legals", label: "Mentions légales", desc: "CGV & confidentialité", icon: ScrollText },
   { to: "/leaderboard", label: "Leaderboard Global", desc: "Top membres & LovaCoins", icon: Trophy },
@@ -111,8 +116,13 @@ const mobileGroups = [
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [menuRotationIndex, setMenuRotationIndex] = useState(0);
+  const [floatingMenuOpen, setFloatingMenuOpen] = useState(false);
+
+  const mobileMinimize = () => { setOpen(false); setMinimized(true); };
+  const mobileExpand = () => { setMinimized(false); setOpen(true); };
   const megaRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | null>(null);
   const { count, setOpen: setCartOpen } = useCart();
@@ -199,6 +209,12 @@ export const Navbar = () => {
             <div className="nav-theme-shell flex min-h-[56px] items-center gap-2 rounded-[1.35rem] px-3 py-2 sm:min-h-[64px] sm:px-4 lg:px-6">
               <div className="flex items-center gap-2" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                 {renderLogo()}
+              </div>
+
+              {/* Dynamic suggestions bar — fills the empty space between logo and cart on mobile */}
+              <NavSuggestionsBar />
+
+              <div className="hidden items-center gap-2 lg:flex" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                 <button
                   type="button"
                   aria-haspopup="true"
@@ -507,6 +523,12 @@ export const Navbar = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Suggestions indicator button */}
+      <NavSuggestionsIndicator isActive={floatingMenuOpen} onClick={() => setFloatingMenuOpen(!floatingMenuOpen)} />
+
+      {/* Floating menu suggestions overlay */}
+      <MobileNavFloater isOpen={floatingMenuOpen} onToggle={() => setFloatingMenuOpen(!floatingMenuOpen)} />
     </>
   );
 };

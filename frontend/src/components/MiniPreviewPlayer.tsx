@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IMPORTED_VIDEOS } from "@/data/importedVideos";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 
 type Kind = "youtube" | "tiktok" | "mp4";
 
@@ -131,7 +132,7 @@ export const MiniPreviewPlayer = ({
   if (kind === "youtube") {
     const current = list[i];
     // Single-video loop requires playlist=ID for the YouTube IFrame API.
-    const src = `https://www.youtube-nocookie.com/embed/${current}?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&playsinline=1&rel=0&playlist=${current}`;
+    const src = buildYouTubeEmbedUrl(current, { autoplay: true, muted: true, controls: false, loop: true, playlist: current, playsInline: true });
     return (
       <div ref={wrapRef} className={"w-full h-full " + className}>
         {active ? (

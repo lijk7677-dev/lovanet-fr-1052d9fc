@@ -1,0 +1,41 @@
+User-agent: *
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: SeznamBot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+Host: lovanet.fr
+
+# XML sitemaps
+Sitemap: https://lovanet.fr/sitemap.xml
+Sitemap: https://lovanet.fr/sitemap-pages.xml
+Sitemap: https://lovanet.fr/sitemap-locales.xml
+Sitemap: https://animemomentsofficiel.fr/sitemap.xml
+Sitemap: https://animeofficiel.fr/sitemap.xml

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 
 /**
  * Tablet-shaped video player with an integrated 3D circular carousel of up to
@@ -352,6 +353,7 @@ export default function TabletTrailerPlayer() {
               muted
               playsInline
               className="absolute inset-0 w-full h-full object-cover"
+              data-bg-video
             />
           ) : (
             <img
@@ -601,7 +603,7 @@ export default function TabletTrailerPlayer() {
             onClick={(e) => e.stopPropagation()}
           >
             <iframe
-              src={`https://www.youtube-nocookie.com/embed/${previewItem.ytId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+              src={buildYouTubeEmbedUrl(previewItem.ytId, { autoplay: true, muted: false, controls: true, playsInline: true })}
               title={previewItem.title}
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
               allowFullScreen

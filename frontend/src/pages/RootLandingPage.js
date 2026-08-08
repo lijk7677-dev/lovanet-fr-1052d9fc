@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, Compass, Film, Newspaper, Play, ShoppingBag, Star, Volume2, VolumeX, GripVertical, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Compass, Film, Newspaper, Play, ShoppingBag, Star, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SEO_NEWS } from "@/data/seoNews";
 import { PageShell } from "@/components/PageShell";
@@ -30,7 +30,7 @@ const rotatingPortalDestinations = [
 
 const portalCards = [
   {
-    title: "Boutique immersive",
+    title: "Boutique premium",
     subtitle: "",
     description: "Sélection produits, drops et pièces mises à jour en continu.",
     image: "",
@@ -77,7 +77,7 @@ const featuredNews = SEO_NEWS.slice(0, 3).map((item, index) => ({
 const pageStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "Lovanet : portail anime manga futuriste",
+  name: "Lovanet : portail anime manga officiel",
   description: "Portail Lovanet pour explorer Anime Moments, les vidéos, les actualités et la boutique collector.",
   url: "https://lovanet.fr/",
 };
@@ -138,8 +138,6 @@ export default function RootLandingPage() {
   const portalAudio = usePortalAudio({ storageKey: "lovanet.portal.audio.enabled" });
 
   const [homeBanners, setHomeBanners] = useState(loadHomeBanners);
-  const [reorderOpen, setReorderOpen] = useState(false);
-  const [videoScale, setVideoScale] = useState(1.0);
   const dragIndexRef = useRef(null);
 
   const heroBanner = homeBanners[0];
@@ -320,7 +318,6 @@ export default function RootLandingPage() {
     () => Array.from({ length: 2 }, (_, rowIndex) => activeCatalogCards.slice(rowIndex * catalogRowSize, rowIndex * catalogRowSize + catalogRowSize)),
     [activeCatalogCards],
   );
-  const newsAction = useMemo(() => getPortalDestination(6, rotationIndex), [rotationIndex]);
 
   return (
     <PageShell>
@@ -332,40 +329,6 @@ export default function RootLandingPage() {
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[42rem] bg-[radial-gradient(circle_at_top_left,rgba(236,72,153,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(34,211,238,0.16),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_20%)]" />
 
         <section className="mx-auto w-[95%] md:w-[50%] lg:w-[45%] px-4 pb-12 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8 lg:pb-24 lg:pt-20">
-          <div className="flex justify-end mb-2 relative z-50">
-            <div className="relative" data-testid="banner-sizing-control">
-              <button
-                type="button"
-                onClick={(e) => { e.preventDefault(); setReorderOpen((o) => !o); }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs font-semibold text-white/90 backdrop-blur-md transition-colors hover:bg-black/80 shadow-[0_0_15px_rgba(56,189,248,0.3)] hover:shadow-[0_0_20px_rgba(56,189,248,0.5)] cursor-pointer"
-                data-testid="banner-reorder-toggle"
-              >
-                <Eye className="h-4 w-4 text-cyan-400" />
-                Ajuster la vidéo
-              </button>
-              {reorderOpen && (
-                <div
-                  className="absolute right-0 top-full mt-2 w-64 rounded-xl border border-white/15 bg-black/90 p-4 shadow-2xl backdrop-blur-xl pointer-events-auto"
-                  data-testid="banner-reorder-panel"
-                >
-                  <label className="text-xs font-semibold text-white/90 mb-2 block">
-                    Zoom Vidéo: {Math.round(videoScale * 100)}%
-                  </label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="2.0"
-                    step="0.05"
-                    value={videoScale}
-                    onChange={(e) => setVideoScale(parseFloat(e.target.value))}
-                    className="w-full accent-cyan-400 cursor-pointer pointer-events-auto"
-                    data-testid="banner-size-slider"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
           <div className={`${luxurySection} p-2 sm:p-3 lg:p-4`}>
             <div className={luxuryGlowLeft} />
             <div className={luxuryGlowRight} />
@@ -379,7 +342,6 @@ export default function RootLandingPage() {
                 <video
                   ref={bannerVideoRef}
                   className="hero-banner-video absolute inset-0 h-full w-full object-cover object-center"
-                  style={{ transform: `scale(${videoScale})` }}
                   autoPlay
                   muted
                   loop
@@ -389,6 +351,7 @@ export default function RootLandingPage() {
                   fetchPriority="high"
                   disablePictureInPicture
                   data-testid="hero-banner-background-video"
+                  data-bg-video
                   poster="/custom-hero-banner-poster.jpg"
                 >
                   <source src="/custom-hero-banner-mobile.mp4" type="video/mp4" media="(max-width: 768px)" />

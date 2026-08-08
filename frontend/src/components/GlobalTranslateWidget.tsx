@@ -35,9 +35,9 @@ export function GlobalTranslateWidget() {
   }, [targetLang, open]);
 
   return (
-    <div className="fixed bottom-32 right-6 z-[100] flex flex-col items-end">
+    <div className="fixed bottom-[150px] right-3 z-[100] flex flex-col items-end sm:right-4 md:bottom-[165px] md:right-6 lg:bottom-[96px] lg:right-6">
       {open ? (
-        <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/60 p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5 mb-4">
+        <div className="mb-3 flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/60 p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-5">
           <div className="flex items-center justify-between mb-2 gap-8">
             <span className="text-xs font-bold uppercase tracking-wider text-white/70 drop-shadow-md">Traduire le site</span>
             <button onClick={() => setOpen(false)} className="text-white/50 hover:text-white"><X className="h-4 w-4" /></button>

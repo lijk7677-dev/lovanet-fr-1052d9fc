@@ -289,7 +289,7 @@ export const AnimeMomentsPresentation = () => {
           )}
           {bgMode === "media" && bgMedia && (
             mediaKind === "video" ? (
-              <video src={bgMedia} autoPlay loop muted playsInline className="absolute inset-0 z-0 w-full h-full object-cover" />
+              <video src={bgMedia} autoPlay loop muted playsInline className="absolute inset-0 z-0 w-full h-full object-cover" data-bg-video />
             ) : (
               <img src={bgMedia} alt="" className="absolute inset-0 z-0 w-full h-full object-cover" />
             )

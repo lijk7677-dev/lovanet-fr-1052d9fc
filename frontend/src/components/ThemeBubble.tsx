@@ -299,7 +299,7 @@ const VARIANT_DEFS: VariantDef[] = [
 
 const FINISH_DEFS: FinishDef[] = [
   { key: "glasswave", label: "Glasswave", mood: "glass", hueShift: 0, saturationBoost: 6, backgroundOffset: 1, cardLift: 13, brightness: 5, tags: ["glass", "wave", "liquid"] },
-  { key: "cyber", label: "Futuriste", mood: "cyber", hueShift: 20, saturationBoost: 16, backgroundOffset: -3, cardLift: 7, brightness: 8, tags: ["cyber", "tech", "future"] },
+  { key: "cyber", label: "Cyber", mood: "cyber", hueShift: 20, saturationBoost: 16, backgroundOffset: -3, cardLift: 7, brightness: 8, tags: ["cyber", "tech", "future"] },
   { key: "velvet", label: "Velvet", mood: "mono", hueShift: 0, saturationBoost: -18, backgroundOffset: -2, cardLift: 6, brightness: -1, tags: ["velvet", "mono", "shadow"] },
   { key: "holo", label: "Holo", mood: "neon", hueShift: 40, saturationBoost: 12, backgroundOffset: 0, cardLift: 10, brightness: 9, tags: ["holo", "hologram", "color-shift"] },
 ];
@@ -588,7 +588,7 @@ const moodFilters: { key: ThemeMood; label: string }[] = [
   { key: "all", label: "Tous" },
   { key: "neon", label: "Électrique" },
   { key: "glass", label: "Glass" },
-  { key: "cyber", label: "Futuriste" },
+  { key: "cyber", label: "Cyber" },
   { key: "glacier", label: "Glacier" },
   { key: "pearl", label: "Pearl" },
   { key: "prism", label: "Prism" },
@@ -873,7 +873,7 @@ export const ThemeBubble = () => {
         onClick={() => setOpen(true)}
         aria-label="Ouvrir le sélecteur de thèmes"
         data-testid="theme-bubble-toggle"
-        className="theme-orb-button fixed bottom-4 left-4 z-[9999] h-[52px] w-[52px] rounded-full p-0 shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.4)] sm:left-6 md:bottom-6 md:h-16 md:w-16"
+        className="theme-orb-button fixed bottom-4 left-3 z-[9999] h-[52px] w-[52px] rounded-full p-0 shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.4)] sm:left-4 md:bottom-6 md:left-6 md:h-16 md:w-16"
       >
         <span className="theme-orb-halo" aria-hidden="true" />
         <span className="theme-orb-core" aria-hidden="true" />

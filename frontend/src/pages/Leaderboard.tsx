@@ -5,6 +5,8 @@ import { Trophy, Coins, Star, Crown, Medal, ArrowUp } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
 import { useAuth } from "@/contexts/AuthContext";
 
+const LEADERBOARD_TOP_VIDEO = "/leaderboard-banner.mp4";
+
 // Mock data for the leaderboard to make it look alive
 const MOCK_LEADERBOARD = [
   { id: "u1", name: "Kira_99", coins: 8450, achievements: 24, color: "#f472b6", isCurrentUser: false },
@@ -49,6 +51,20 @@ export default function Leaderboard() {
       </Helmet>
       
       <section className="container mx-auto px-4 lg:px-8 py-12 md:py-20 max-w-5xl">
+        <div className="mb-8 overflow-hidden rounded-[1.6rem] border border-white/10">
+          <div className="aspect-[21/9] w-full">
+            <video
+              src={LEADERBOARD_TOP_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
+
         <header className="text-center mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold tracking-widest uppercase mb-4 shadow-[0_0_20px_rgba(251,191,36,0.15)]">
             <Trophy className="w-3.5 h-3.5" /> Leaderboard Officiel

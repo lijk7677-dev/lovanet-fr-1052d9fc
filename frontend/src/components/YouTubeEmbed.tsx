@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { requestBestYouTubeQuality } from "@/lib/youtubeEmbed";
 
 let ytApiPromise: Promise<any> | null = null;
 function loadYouTubeAPI(): Promise<any> {
@@ -87,6 +88,7 @@ export default function YouTubeEmbed({
         disablekb: hideControls ? 1 : 0,
         iv_load_policy: 3,
         cc_load_policy: captionLang ? 1 : 0,
+        vq: "highres",
         ...(captionLang ? { cc_lang_pref: captionLang, hl: captionLang } : {}),
       };
 
@@ -103,6 +105,7 @@ export default function YouTubeEmbed({
               if (muted) playerRef.current?.mute?.();
               else playerRef.current?.unMute?.();
               if (autoplay) playerRef.current?.playVideo?.();
+              requestBestYouTubeQuality(playerRef.current);
               if (captionLang) {
                 try {
                   playerRef.current?.setOption?.("captions", "reload", true);
@@ -165,6 +168,8 @@ export default function YouTubeEmbed({
                 if (muted) playerRef.current?.mute?.();
                 else playerRef.current?.unMute?.();
                 if (autoplay) playerRef.current?.playVideo?.();
+                requestBestYouTubeQuality(playerRef.current);
+                requestBestYouTubeQuality(playerRef.current);
                 callbacksRef.current.onPlayerReady?.(playerRef.current);
                 return;
               } catch {

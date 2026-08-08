@@ -14,6 +14,11 @@ const PRIMARY_SITE = "https://lovanet.fr";
 const ALTERNATE_SITES = ["https://animemomentsofficiel.fr", "https://animeofficiel.fr"];
 const OG_IMAGE = `${PRIMARY_SITE}/lovanet-logo-custom.png`;
 const LOGO = `${PRIMARY_SITE}/lovanet-logo-custom.png`;
+const GOOGLE_SITE_VERIFICATION = process.env.REACT_APP_GOOGLE_SITE_VERIFICATION;
+const BING_SITE_VERIFICATION = process.env.REACT_APP_BING_SITE_VERIFICATION;
+const YANDEX_SITE_VERIFICATION = process.env.REACT_APP_YANDEX_SITE_VERIFICATION;
+const BAIDU_SITE_VERIFICATION = process.env.REACT_APP_BAIDU_SITE_VERIFICATION;
+const NAVER_SITE_VERIFICATION = process.env.REACT_APP_NAVER_SITE_VERIFICATION;
 
 const KEYWORDS = [
   "anime",
@@ -51,9 +56,13 @@ function breadcrumbFor(route: string, canonical: string) {
     "/anime-catalog": "Catalogue Anime",
     "/anime-countdown": "Anime à venir",
     "/chaine-youtube": "YouTube",
+    "/lecteurs-video": "Lecteur vidéo",
     "/prime-video": "Prime Video",
     "/tiktok": "TikTok",
     "/actualites": "Actualités",
+    "/leaderboard": "Classement",
+    "/profile": "Espace client",
+    "/login": "Connexion",
     "/contact": "Contact",
     "/legals": "Mentions légales",
   };
@@ -92,6 +101,21 @@ export function LocalizedHead() {
   const canonicalPath = localizedPath(route, locale);
   const canonical = `${PRIMARY_SITE}${canonicalPath}${deepSeoQuery}`;
   const alternateCanonicals = ALTERNATE_SITES.map((site) => `${site}${canonicalPath}${deepSeoQuery}`);
+  const serviceLinks = [
+    { name: "Accueil", url: `${PRIMARY_SITE}/` },
+    { name: "Anime Moments", url: `${PRIMARY_SITE}/anime-moments` },
+    { name: "Boutique", url: `${PRIMARY_SITE}/shop` },
+    { name: "Catalogue Anime", url: `${PRIMARY_SITE}/anime-catalog` },
+    { name: "Prime Video", url: `${PRIMARY_SITE}/prime-video` },
+    { name: "TikTok", url: `${PRIMARY_SITE}/tiktok` },
+    { name: "YouTube", url: `${PRIMARY_SITE}/chaine-youtube` },
+    { name: "Lecteur vidéo", url: `${PRIMARY_SITE}/lecteurs-video` },
+    { name: "Actualités", url: `${PRIMARY_SITE}/actualites` },
+    { name: "Classement", url: `${PRIMARY_SITE}/leaderboard` },
+    { name: "Espace client", url: `${PRIMARY_SITE}/profile` },
+    { name: "Connexion", url: `${PRIMARY_SITE}/login` },
+    { name: "Contact", url: `${PRIMARY_SITE}/contact` },
+  ];
 
   const graph = {
     "@context": "https://schema.org",
@@ -109,6 +133,42 @@ export function LocalizedHead() {
           "https://www.tiktok.com/@anime.moments.officiel",
           ...ALTERNATE_SITES,
         ],
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            contactType: "customer support",
+            url: `${PRIMARY_SITE}/contact`,
+            availableLanguage: ["fr", "en"],
+            areaServed: ["FR", "EU"],
+            serviceType: "Support plateforme et compte client",
+          },
+          {
+            "@type": "ContactPoint",
+            contactType: "sales",
+            url: `${PRIMARY_SITE}/shop`,
+            availableLanguage: ["fr", "en"],
+            areaServed: ["FR", "EU"],
+            serviceType: "Boutique manga et produits collectors",
+          },
+          {
+            "@type": "ContactPoint",
+            contactType: "technical support",
+            url: `${PRIMARY_SITE}/login`,
+            availableLanguage: ["fr", "en"],
+            areaServed: ["FR", "EU"],
+            serviceType: "Authentification et acces espace client",
+          },
+        ],
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Catalogue des services Lovanet",
+          itemListElement: [
+            { "@type": "Offer", name: "Boutique anime manga", url: `${PRIMARY_SITE}/shop` },
+            { "@type": "Offer", name: "Catalogue anime", url: `${PRIMARY_SITE}/anime-catalog` },
+            { "@type": "Offer", name: "Lecteur video", url: `${PRIMARY_SITE}/lecteurs-video` },
+            { "@type": "Offer", name: "Espace client", url: `${PRIMARY_SITE}/profile` },
+          ],
+        },
         aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "1284", bestRating: "5" },
         review: {
           "@type": "Review",
@@ -132,6 +192,24 @@ export function LocalizedHead() {
           "query-input": "required name=search_term_string",
         },
       },
+      {
+        "@type": "ItemList",
+        "@id": `${PRIMARY_SITE}/#services`,
+        name: "Services Lovanet",
+        itemListOrder: "https://schema.org/ItemListOrderAscending",
+        numberOfItems: serviceLinks.length,
+        itemListElement: serviceLinks.map((item, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          name: item.name,
+          url: item.url,
+        })),
+      },
+      ...serviceLinks.map((item) => ({
+        "@type": "SiteNavigationElement",
+        name: item.name,
+        url: item.url,
+      })),
       {
         "@type": "WebPage",
         "@id": `${canonical}#webpage`,
@@ -162,6 +240,11 @@ export function LocalizedHead() {
       <meta name="author" content="Lovanet Anime.Moments.officiel" />
       <meta name="publisher" content="Lovanet" />
       <meta name="news_keywords" content="anime, manga, AnimeMoments, Lovanet, YouTube anime, TikTok anime, Prime Video anime" />
+      {GOOGLE_SITE_VERIFICATION ? <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} /> : null}
+      {BING_SITE_VERIFICATION ? <meta name="msvalidate.01" content={BING_SITE_VERIFICATION} /> : null}
+      {YANDEX_SITE_VERIFICATION ? <meta name="yandex-verification" content={YANDEX_SITE_VERIFICATION} /> : null}
+      {BAIDU_SITE_VERIFICATION ? <meta name="baidu-site-verification" content={BAIDU_SITE_VERIFICATION} /> : null}
+      {NAVER_SITE_VERIFICATION ? <meta name="naver-site-verification" content={NAVER_SITE_VERIFICATION} /> : null}
       <meta name="alternate-domains" content={ALTERNATE_SITES.join(", ")} />
       {!pageOwnsCoreSeo && <link rel="canonical" href={canonical} />}
       {alternateCanonicals.map((href) => (

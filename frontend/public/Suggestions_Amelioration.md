@@ -2,7 +2,7 @@
 
 ## 🚀 Menu Mobile (À implémenter)
 1. Affichage "Prime Vidéo", "Catalogue", et "À venir" avec des icônes 3D interactives.
-2. Ajout de retours haptiques sur les boutons principaux.
+2. Ajout de retours haptiques sur les boutons principaux, avec intensite variable selon l'action (navigation simple, confirmation importante, recompense debloquee) pour un ressenti premium sur mobile et tablette.
 3. Arrière-plan "Glassmorphism" prononcé avec effets de particules de lumière.
 4. Couleurs dynamiques : les couleurs thématiques du site doivent teinter fortement le menu mobile (thème néon, bubble, cyberpunk, etc.).
 5. Effet Parallax sur les éléments au scroll du menu.

@@ -11,6 +11,19 @@ a, button, [role="button"], input, select {
   cursor: url('https://cdn.custom-cursor.com/db/8572/32/anime-naruto-sharingan-pointer.png'), pointer !important;
 }
 
+/* ─── Contrôle global décors & vidéos via attributs sur body ─────────────── */
+body[data-hide-videos] video[data-bg-video],
+body[data-hide-videos] .hero-banner-video,
+body[data-hide-videos] video.hero-banner-video {
+  display: none !important;
+}
+
+body[data-hide-decors] [data-3d-decor],
+body[data-hide-decors] [data-animated-bg] {
+  display: none !important;
+}
+/* ──────────────────────────────────────────────────────────────────────────── */
+
 @layer utilities {
   /* Unified RGB neon signature used as the source of truth for menu-themed
      text, icons, borders and buttons. Transparent / glass backgrounds stay light. */

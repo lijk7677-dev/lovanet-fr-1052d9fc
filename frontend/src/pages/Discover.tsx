@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import { Link } from "react-router-dom";
 import { PageShell } from "@/components/PageShell";
 import { HubEmbedFrame } from "@/components/HubEmbedFrame";
@@ -47,10 +48,10 @@ const Discover = () => {
   }> = [
     { to: "/chaine-youtube", label: "AnimemomentsAnimeofficiel", tagline: "YouTube officiel", desc: "Edits, trailers & épisodes en HD", icon: Youtube, grad: "from-red-500/40 via-rose-500/20 to-transparent", accent: "#ef4444", emoji: "▶️" },
     { to: "/tiktok", label: "Anime.Moments.officiel", tagline: "TikTok · shorts viraux", desc: "Shorts verticaux, edits & moments cultes", icon: Music2, grad: "from-fuchsia-500/40 via-cyan-400/20 to-transparent", accent: "#e879f9", emoji: "🎵" },
-    { to: "/prime-video", label: "Prime Video", tagline: "Séances immersives", desc: "Lecture cinéma en pleine page", icon: Play, grad: "from-sky-500/40 via-blue-500/20 to-transparent", accent: "#38bdf8", emoji: "🎬" },
+    { to: "/prime-video", label: "Prime Video", tagline: "Séances premium", desc: "Lecture cinéma en pleine page", icon: Play, grad: "from-sky-500/40 via-blue-500/20 to-transparent", accent: "#38bdf8", emoji: "🎬" },
     { to: "/anime-countdown", label: "À venir", tagline: "Countdown live", desc: "Prochaines sorties anime en direct", icon: Calendar, grad: "from-amber-500/40 via-orange-500/20 to-transparent", accent: "#fbbf24", emoji: "⏳" },
     { to: "/anime-catalog", label: "Catalogue", tagline: "1500+ animés", desc: "Fiches, trailers, synopsis complets", icon: Sparkles, grad: "from-violet-500/40 via-indigo-500/20 to-transparent", accent: "#a78bfa", emoji: "📚" },
-    { to: "/anime-moments", label: "Anime Moments", tagline: "Expérience immersive", desc: "La page originale avec hologrammes et carrousel vivant", icon: Film, grad: "from-emerald-500/40 via-teal-500/20 to-transparent", accent: "#34d399", emoji: "🌌" },
+    { to: "/anime-moments", label: "Anime Moments", tagline: "Expérience premium", desc: "La page originale avec hologrammes et carrousel vivant", icon: Film, grad: "from-emerald-500/40 via-teal-500/20 to-transparent", accent: "#34d399", emoji: "🌌" },
     { to: "/shop", label: "Shop", tagline: "Collector officiel", desc: `${SHOP_PRODUCTS.length} pièces exclusives · édition limitée`, icon: ShoppingBag, grad: "from-pink-500/40 via-rose-500/20 to-transparent", accent: "#f472b6", emoji: "🛍️" },
   ];
 
@@ -93,7 +94,7 @@ const Discover = () => {
       thumbnailUrl: [thumb(v.id)],
       uploadDate: v.date ?? "2026-01-01",
       contentUrl: `https://www.youtube.com/watch?v=${v.id}`,
-      embedUrl: `https://www.youtube.com/embed/${v.id}`,
+      embedUrl: buildYouTubeEmbedUrl(v.id, { autoplay: false, muted: false, controls: true, playsInline: true, nocookie: false }),
     })),
   };
 
@@ -117,7 +118,7 @@ const Discover = () => {
             thumbnailUrl: [it.cover, `https://i.ytimg.com/vi/${it.trailerId}/hqdefault.jpg`].filter(Boolean),
             uploadDate: it.year ? `${it.year}-01-01` : "2020-01-01",
             contentUrl: `https://www.youtube.com/watch?v=${it.trailerId}`,
-            embedUrl: `https://www.youtube.com/embed/${it.trailerId}`,
+            embedUrl: buildYouTubeEmbedUrl(it.trailerId, { autoplay: false, muted: false, controls: true, playsInline: true, nocookie: false }),
             genre: it.genres,
             url: it.url,
           }

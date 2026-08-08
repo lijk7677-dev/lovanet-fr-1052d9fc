@@ -150,6 +150,7 @@ const placeholderThumb = (id: string, title: string) => {
 };
 
 export const HeroCarousel = ({ captureVideo }: { captureVideo?: string } = {}) => {
+
   const containerRef = useRef<HTMLDivElement>(null);
   const constrainedRef = useRef(false);
   const pausedRef = useRef(false);
@@ -516,8 +517,9 @@ export const HeroCarousel = ({ captureVideo }: { captureVideo?: string } = {}) =
               loop
               playsInline
               preload="metadata"
-              className="h-full w-full object-cover opacity-[0.82]"
+              className="h-full w-full object-cover"
               data-testid="anime-moments-capture-video"
+              data-bg-video
             />
           </div>
           <div className="pointer-events-none absolute inset-0 ring-1 ring-white/10" />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
+import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import { PageShell } from "@/components/PageShell";
 import { CalendarRange, Clapperboard, ExternalLink, Heart, Play, PlayCircle, Search, Info, SkipForward, Sparkles, Volume2, VolumeX, Maximize, PictureInPicture2, Pause, Star, Globe, Loader2, Captions } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -545,7 +546,7 @@ const PrimeVideo = () => {
           body{margin:0;background:#000;display:flex;height:100vh;}
           iframe{width:100%;height:100%;border:0;}
         </style>`;
-        pipWindow.document.body.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${selectedPrime.trailerId}?autoplay=1&mute=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        pipWindow.document.body.innerHTML = `<iframe src="${buildYouTubeEmbedUrl(selectedPrime.trailerId, { autoplay: true, muted: false, controls: true, playsInline: true })}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
         setPipOpen(true);
         pipWindow.addEventListener("pagehide", () => {
           pipWindowRef.current = null;

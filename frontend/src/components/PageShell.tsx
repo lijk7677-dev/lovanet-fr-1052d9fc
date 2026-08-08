@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 import { PremiumBorders } from "./PremiumBorders";
+import { ThemeDecorOverlay } from "./ThemeDecorOverlay";
 
 export const PageShell = ({ children }: { children: ReactNode }) => (
   <>
@@ -10,6 +11,7 @@ export const PageShell = ({ children }: { children: ReactNode }) => (
       <Navbar />
       <main className="theme-main-content flex-1 pt-[5rem] sm:pt-[5.5rem]">{children}</main>
       <Footer />
+      <ThemeDecorOverlay />
     </div>
   </>
 );
