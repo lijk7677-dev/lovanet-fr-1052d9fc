@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { PageShell } from "@/components/PageShell";
+import VideoWithFallback from "@/components/VideoWithFallback";
 import { Trophy, Coins, Star, Crown, Medal, ArrowUp } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,7 +54,7 @@ export default function Leaderboard() {
       <section className="container mx-auto px-4 lg:px-8 py-12 md:py-20 max-w-5xl">
         <div className="mb-8 overflow-hidden rounded-[1.6rem] border border-white/10">
           <div className="aspect-[21/9] w-full">
-            <video
+            <VideoWithFallback
               src={LEADERBOARD_TOP_VIDEO}
               autoPlay
               muted
@@ -61,6 +62,7 @@ export default function Leaderboard() {
               playsInline
               preload="metadata"
               className="h-full w-full object-cover"
+              seed="leaderboard-top"
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PageShell } from "@/components/PageShell";
+import VideoWithFallback from "@/components/VideoWithFallback";
 import { cn } from "@/lib/utils";
 import { Sparkles, Volume2, VolumeX, Play, SkipBack, SkipForward, Disc3, Theater, Building2 } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
@@ -222,8 +223,8 @@ export default function LecteursVideo() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_15%,rgba(250,204,21,0.18),transparent_24%),radial-gradient(circle_at_82%_18%,rgba(56,189,248,0.14),transparent_25%),linear-gradient(180deg,rgba(5,10,24,0.96),rgba(7,11,26,0.98))]" />
         <div className="container mx-auto px-4 lg:px-8 py-8 lg:py-10">
-          <div className={cn("relative overflow-hidden rounded-[2rem] border border-white/12", accentMeta.glow)}>
-            <video
+            <div className={cn("relative overflow-hidden rounded-[2rem] border border-white/12", accentMeta.glow)}>
+            <VideoWithFallback
               key={`hero-${activeClip.id}`}
               src={activeClip.src}
               poster={activeClip.poster}
@@ -233,6 +234,7 @@ export default function LecteursVideo() {
               playsInline
               preload="metadata"
               className="h-[280px] w-full object-cover sm:h-[340px] lg:h-[420px]"
+              seed={activeClip.id}
             />
             <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(2,6,23,0.84)_0%,rgba(2,6,23,0.28)_46%,rgba(2,6,23,0.9)_100%)]" />
           </div>
@@ -262,7 +264,7 @@ export default function LecteursVideo() {
               </div>
 
               <div className="mt-4 overflow-hidden rounded-[1.25rem] border border-white/12 bg-black">
-                <video
+                <VideoWithFallback
                   key={`main-${activeClip.id}-${muted ? "muted" : "sound"}`}
                   src={activeClip.src}
                   poster={activeClip.poster}
@@ -272,6 +274,7 @@ export default function LecteursVideo() {
                   playsInline
                   preload="metadata"
                   className="aspect-video h-full w-full object-cover"
+                  seed={activeClip.id}
                 />
               </div>
 
@@ -314,7 +317,7 @@ export default function LecteursVideo() {
               <div className="rounded-[1.6rem] border border-white/12 bg-[rgba(255,255,255,0.03)] p-4">
                 <p className="text-[11px] uppercase tracking-[0.25em] text-white/75">Bannière Locale Continue</p>
                 <div className="mt-3 overflow-hidden rounded-xl border border-white/12">
-                  <video
+                  <VideoWithFallback
                     src="/leaderboard-banner.mp4"
                     autoPlay
                     muted
@@ -322,6 +325,7 @@ export default function LecteursVideo() {
                     playsInline
                     preload="metadata"
                     className="h-[145px] w-full object-cover"
+                    seed="continuous-banner"
                   />
                 </div>
               </div>
@@ -420,7 +424,7 @@ export default function LecteursVideo() {
           <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
             <div className="space-y-4">
               <div className="overflow-hidden rounded-[1.2rem] border border-sky-200/60 bg-white/70">
-                <video
+                <VideoWithFallback
                   key={`module-preview-${sceneMode}-${activeSceneCard.id}`}
                   src={activeSceneCard.previewSrc}
                   poster={activeSceneCard.previewPoster}
@@ -430,6 +434,7 @@ export default function LecteursVideo() {
                   playsInline
                   preload="metadata"
                   className="h-[260px] w-full object-cover"
+                  seed={`scene-${sceneMode}-${activeSceneCard.id}`}
                 />
                 <div className="border-t border-sky-200/60 bg-white/85 px-4 py-3 text-sm text-slate-700">
                   Élément sélectionné: <span className="font-black text-cyan-700">#{activeSceneCard.id}</span> {activeSceneCard.label}
