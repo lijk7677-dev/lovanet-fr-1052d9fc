@@ -1,0 +1,70 @@
+name: Deploy assets via Emergent
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+
+jobs:
+  upload-assets:
+    name: Upload frontend assets and purge cache
+    runs-on: ubuntu-latest
+    env:
+      SITE_BASE_URL: https://animemomentsofficiel.fr
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find assets
+        id: find_assets
+        run: |
+          find frontend/public -type f \( -iname '*.mp4' -o -iname '*.webm' \) -print > assets.txt
+
+      - name: Upload assets to Emergent integration
+        if: ${{ secrets.EMERGENT_API_KEY }}
+        env:
+          EMERGENT_API_KEY: ${{ secrets.EMERGENT_API_KEY }}
+        run: |
+          while IFS= read -r f; do
+            fname=$(basename "$f")
+            echo "Uploading $f -> /public/$fname"
+            curl -sS -X POST "https://integrations.emergentagent.com/v1/uploads?dest=/public/$fname" \
+              -H "Authorization: Bearer $EMERGENT_API_KEY" \
+              -F "file=@$f"
+          done < assets.txt
+
+      - name: Purge Cloudflare cache for uploaded files
+        if: ${{ secrets.CLOUDFLARE_TOKEN && secrets.CLOUDFLARE_ZONE_ID }}
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          SITE_BASE_URL: ${{ env.SITE_BASE_URL }}
+        run: |
+          python3 - <<'PY'
+import json
+files=[]
+with open('assets.txt') as f:
+  for line in f:
+    fname=line.strip().split('/')[-1]
+    files.append(f"{" + 'SITE_BASE_URL' + "}/"+fname)
+print(json.dumps({'files':files}))
+PY
+
+          # The python block above prints JSON to stdout; send it to Cloudflare
+          python3 - <<'PY' > cf_payload.json
+import json,sys
+files=[]
+with open('assets.txt') as f:
+  for line in f:
+    fname=line.strip().split('/')[-1]
+    files.append('https://animemomentsofficiel.fr/'+fname)
+print(json.dumps({'files':files}))
+PY
+
+          curl -sS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
+            -H "Authorization: Bearer $CF_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data @cf_payload.json | jq '.' || true
+
+      - name: Done
+        run: echo "Upload + purge steps completed. If you need a full site build/deploy, configure your pipeline to run the server-side deploy step after uploads."
