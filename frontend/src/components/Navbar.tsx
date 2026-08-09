@@ -117,6 +117,7 @@ const mobileGroups = [
 
 export const Navbar = () => {
   const [appliedNavStyle, setAppliedNavStyle] = useState<string | null>(null);
+  const [showStyleHint, setShowStyleHint] = useState(false);
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -170,7 +171,7 @@ export const Navbar = () => {
 
   // Apply saved nav style on mount and listen for changes
   useEffect(() => {
-    const applyStyleById = (id: string | null) => {
+    const applyStyleById = (id: string | null, fromRandom = false) => {
       try {
         if (!id) {
           document.documentElement.style.removeProperty('--nav-card-overlay');
@@ -188,6 +189,17 @@ export const Navbar = () => {
         document.documentElement.style.setProperty('--nav-accent', s.accent);
         document.documentElement.style.setProperty('--nav-font', s.fontFamily);
         setAppliedNavStyle(id);
+        // If style was applied from random selection, mark hint to show (unless already shown for this style)
+        if (fromRandom) {
+          try {
+            const shownKey = `lovanet.nav.hintShown.${id}`;
+            const already = localStorage.getItem(shownKey);
+            if (!already) {
+              setShowStyleHint(true);
+              // do not mark as shown here; mark when user closes hint
+            }
+          } catch {}
+        }
       } catch (e) {
         // ignore
       }
@@ -195,7 +207,22 @@ export const Navbar = () => {
 
     try {
       const stored = localStorage.getItem('lovanet.nav.style');
-      applyStyleById(stored);
+      if (stored) {
+        applyStyleById(stored);
+      } else {
+        // No user selection: pick a random preset different from lastRandom
+        try {
+          const styles = require('@/data/navStyles').default as any[];
+          const last = localStorage.getItem('lovanet.nav.lastRandom');
+          const options = styles.map((s) => s.id).filter((id) => id !== last);
+          const pick = options[Math.floor(Math.random() * options.length)];
+          if (pick) {
+            localStorage.setItem('lovanet.nav.style', pick);
+            localStorage.setItem('lovanet.nav.lastRandom', pick);
+            applyStyleById(pick, true);
+          }
+        } catch {}
+      }
     } catch {}
 
     const onChange = (e: Event) => {
@@ -243,6 +270,26 @@ export const Navbar = () => {
 
   return (
     <>
+      {/* One-time AI hint about personalization */}
+      {showStyleHint && (
+        <div className="fixed top-20 right-4 z-60 max-w-xs">
+          <div className="rounded-xl border border-white/10 bg-gradient-to-r from-black/80 to-black/70 p-3 shadow-2xl backdrop-blur-md text-sm text-white">
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <div className="font-semibold">Astuce personnalisée</div>
+                <div className="text-xs mt-1">Une bulle flottante contient une option "Personnaliser" pour choisir la couleur du menu et la police — vous pouvez la laisser en favori.</div>
+                <div className="mt-2 flex items-center gap-2">
+                  <button onClick={() => {
+                    setShowStyleHint(false);
+                    try { localStorage.setItem(`lovanet.nav.hintShown.${appliedNavStyle}`, '1'); } catch {}
+                  }} className="rounded-full bg-white/6 px-2 py-1 text-xs">J'ai compris</button>
+                  <button onClick={() => { setShowStyleHint(false); navigate('/'); }} className="rounded-full bg-white/6 px-2 py-1 text-xs">Fermer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <header className="fixed inset-x-0 top-0 z-50 px-2 pt-2 sm:px-3" data-testid="site-navbar">
         <div className="mx-auto max-w-[1120px]">
           <div className="relative">
