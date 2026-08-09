@@ -372,33 +372,39 @@ export const Navbar = () => {
                       <QuickNavCarousel />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                      {megaSections.map((item) => {
-                        const active = isActivePath(item.to);
-                        return (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            role="menuitem"
-                            aria-current={active ? "page" : undefined}
-                            data-testid={navTestIds[item.to] ?? undefined}
-                            onClick={() => setMegaOpen(false)}
-                            className={cn(
-                              "nav-theme-chip group relative flex min-h-[88px] items-start gap-3 rounded-[1.3rem] p-4 text-left",
-                              active && "nav-theme-chip-active",
-                            )}
-                          >
-                            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[var(--nav-theme-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                              <item.icon className="h-4 w-4" strokeWidth={1.8} />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block text-sm font-semibold nav-theme-accent-text">{item.label}</span>
-                              <span className="mt-1 block text-xs leading-5 text-[var(--nav-theme-muted)]">{item.desc}</span>
-                            </span>
-                            {active && <span className="nav-theme-active-dot absolute left-0 top-5 h-10 w-1 rounded-r-full" />}
-                          </Link>
-                        );
-                      })}
+                    <div className="relative">
+                      <div className="relative flex gap-4 overflow-x-auto no-scrollbar py-2 px-1">
+                        {megaSections.map((item) => {
+                          const active = isActivePath(item.to);
+                          return (
+                            <Link
+                              key={item.to}
+                              to={item.to}
+                              role="menuitem"
+                              aria-current={active ? "page" : undefined}
+                              data-testid={navTestIds[item.to] ?? undefined}
+                              onClick={() => setMegaOpen(false)}
+                              className={cn(
+                                "flex-shrink-0 w-56 sm:w-64 h-28 rounded-2xl p-3 text-left relative overflow-hidden transform-gpu transition-transform duration-200 hover:scale-105 focus:scale-105",
+                                active && "ring-1 ring-white/20",
+                              )}
+                              style={{ background: 'transparent' }}
+                            >
+                              <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm" />
+                              <div className="relative z-10 flex items-center h-full gap-3">
+                                <span className="flex items-center justify-center h-10 w-10 rounded-lg bg-white/6 text-white/90">
+                                  <item.icon className="h-5 w-5" strokeWidth={1.6} />
+                                </span>
+                                <div className="min-w-0">
+                                  <div className="text-sm font-semibold text-white">{item.label}</div>
+                                  <div className="text-xs text-white/90 truncate">{item.desc}</div>
+                                </div>
+                                {active && <span className="nav-theme-active-dot absolute left-0 top-5 h-10 w-1 rounded-r-full" />}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                     {/* Quick navigation carousel inside the mega menu for rapid access */}
                     <div className="mt-4">
