@@ -244,13 +244,14 @@ export const Navbar = () => {
                     setMegaOpen(true);
                   }}
                   className={cn(
-                    "nav-theme-chip hidden h-11 w-11 items-center justify-center rounded-full lg:inline-flex",
-                    megaOpen && "nav-theme-chip-active rotate-45",
+                    "nav-theme-chip hidden h-11 w-11 items-center justify-center rounded-full lg:inline-flex ml-auto",
+                    megaOpen && "nav-theme-chip-active",
                   )}
-                  aria-label="Ouvrir le méga-menu de navigation"
+                  aria-label="Ouvrir le menu"
                   data-testid="desktop-mega-menu-button"
+                  style={{ marginRight: 0 }}
                 >
-                  <Sparkles className="h-4 w-4" strokeWidth={1.7} />
+                  <Menu className="h-5 w-5" strokeWidth={2} />
                 </button>
               </div>
 
@@ -366,6 +367,11 @@ export const Navbar = () => {
                         <X className="h-4 w-4" />
                       </button>
                     </div>
+                    {/* Quick navigation carousel appears before the grid of cards */}
+                    <div className="mt-2">
+                      <QuickNavCarousel />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                       {megaSections.map((item) => {
                         const active = isActivePath(item.to);
@@ -396,7 +402,6 @@ export const Navbar = () => {
                     </div>
                     {/* Quick navigation carousel inside the mega menu for rapid access */}
                     <div className="mt-4">
-                      <QuickNavCarousel />
                     </div>
                   </div>
                 </div>
