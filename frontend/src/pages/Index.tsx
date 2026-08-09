@@ -123,6 +123,7 @@ const reactions = [
 
 const Index = () => {
   const [ytIds, setYtIds] = useState<string[]>([]);
+  const [showQuickNav, setShowQuickNav] = useState(false);
   const [animeTrailers, setAnimeTrailers] = useState<{ countdown: string[]; catalog: string[] }>({
     countdown: [],
     catalog: [],
@@ -150,6 +151,12 @@ const Index = () => {
       }
     })();
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setShowQuickNav((v) => !v);
+    window.addEventListener('quicknav:toggle', handler as EventListener);
+    return () => window.removeEventListener('quicknav:toggle', handler as EventListener);
   }, []);
 
   useEffect(() => {
@@ -264,6 +271,7 @@ const Index = () => {
         <div className="relative w-full pt-6 lg:pt-8">
           <div className="relative w-full">
             <HeroCarousel captureVideo={ANIME_MOMENTS_CAPTURE_VIDEO} />
+            {showQuickNav && <QuickNavCarousel onClose={() => setShowQuickNav(false)} />}
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0"

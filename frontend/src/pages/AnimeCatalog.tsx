@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
+import VideoWithFallback from "@/components/VideoWithFallback";
 import NeonFooterBar from "@/components/NeonFooterBar";
 import MangaNeonBar from "@/components/MangaNeonBar";
 import { Navbar } from "@/components/Navbar";
@@ -175,10 +176,12 @@ query ($page: Int, $perPage: Int, $sort: [MediaSort]) {
 import { Canvas } from "@react-three/fiber";
 import { Carousel3D } from "@/components/Carousel3D";
 import { OrbitControls } from "@react-three/drei";
+import QuickNavCarousel from "@/components/QuickNavCarousel";
 
 import { ErrorBoundary } from "react-error-boundary";
 export default function AnimeCatalog() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showQuickNav, setShowQuickNav] = useState(false);
   const [items, setItems] = useState<Media[]>([]);
   const [gridItems, setGridItems] = useState<Media[]>([]);
   const [gridLoading, setGridLoading] = useState(true);
@@ -394,6 +397,12 @@ export default function AnimeCatalog() {
   };
 
   useEffect(() => {
+    const handler = () => setShowQuickNav((v) => !v);
+    window.addEventListener('quicknav:toggle', handler as EventListener);
+    return () => window.removeEventListener('quicknav:toggle', handler as EventListener);
+  }, []);
+
+  
     (async () => {
       try {
         const [topIdb, gridIdb] = await Promise.all([idbGet<Media[]>("catalog.top"), idbGet<Media[]>("catalog.grid")]);
@@ -1048,7 +1057,7 @@ export default function AnimeCatalog() {
               />
               <div className="relative grid gap-6 lg:grid-cols-[1.15fr_.85fr] lg:items-end">
                 <div className="relative min-h-[140px] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[rgba(255,255,255,0.015)]" data-testid="catalog-premium-hero-spacer">
-                  <video
+                  <VideoWithFallback
                     src={CATALOG_TOP_VIDEO}
                     autoPlay
                     muted
@@ -1056,6 +1065,7 @@ export default function AnimeCatalog() {
                     playsInline
                     preload="metadata"
                     className="absolute inset-0 h-full w-full object-cover"
+                    seed="catalog-top-banner"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-6">
@@ -1467,6 +1477,7 @@ export default function AnimeCatalog() {
           <MangaNeonBar height={26} className="rounded-full overflow-hidden" />
         </div>
         <CatalogCardColorBubble />
+        {showQuickNav && <QuickNavCarousel onClose={() => setShowQuickNav(false)} />}
 
         <section className="px-4 py-8 md:px-8 xl:px-10" data-testid="catalog-filters-section">
           <div className="mx-auto max-w-[1120px] space-y-5">

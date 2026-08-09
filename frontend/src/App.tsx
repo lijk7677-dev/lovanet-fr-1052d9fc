@@ -1,3 +1,4 @@
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -5,28 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { PerformanceProvider } from "@/contexts/PerformanceContext";
-import Index from "./pages/Index";
-import RootLandingPage from "./pages/RootLandingPage";
-import ChaineYoutube from "./pages/ChaineYoutube";
-import ChaineYoutubeManga from "./pages/ChaineYoutubeManga";
-import LecteursVideo from "./pages/LecteursVideo";
-import PrimeVideo from "./pages/PrimeVideo";
-import Tiktok from "./pages/Tiktok";
-import Shop from "./pages/Shop";
-import Contact from "./pages/Contact";
-import Legals from "./pages/Legals";
-import NotFound from "./pages/NotFound";
-import AnimeCountdown from "./pages/AnimeCountdown";
-import AnimeCatalog from "./pages/AnimeCatalog";
-import Discover from "./pages/Discover";
-import OAuthConsent from "./pages/OAuthConsent";
-import SyncDashboard from "./pages/SyncDashboard";
-import Actualites from "./pages/Actualites";
-import HubTrainStationStandalone from "./pages/HubTrainStationStandalone";
-import Leaderboard from "./pages/Leaderboard";
-import HubFerryStandalone from "./pages/HubFerryStandalone";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
 import { ThemeBubble } from "./components/ThemeBubble";
 import { CartProvider } from "./context/CartContext";
 import { CartDrawer } from "./components/CartDrawer";
@@ -34,9 +13,32 @@ import GoogleTranslate from "./components/GoogleTranslate";
 import { LocalizedHead } from "./components/LocalizedHead";
 import { AuthProvider } from "./contexts/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import AuthCallback from "./pages/AuthCallback";
-import { Onboarding3D } from "./components/Onboarding3D";
-import { AiHub } from "./pages/AiHub";
+
+const Index = lazy(() => import("./pages/Index"));
+const RootLandingPage = lazy(() => import("./pages/RootLandingPage"));
+const ChaineYoutube = lazy(() => import("./pages/ChaineYoutube"));
+const ChaineYoutubeManga = lazy(() => import("./pages/ChaineYoutubeManga"));
+const LecteursVideo = lazy(() => import("./pages/LecteursVideo"));
+const PrimeVideo = lazy(() => import("./pages/PrimeVideo"));
+const Tiktok = lazy(() => import("./pages/Tiktok"));
+const Shop = lazy(() => import("./pages/Shop"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Legals = lazy(() => import("./pages/Legals"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AnimeCountdown = lazy(() => import("./pages/AnimeCountdown"));
+const AnimeCatalog = lazy(() => import("./pages/AnimeCatalog"));
+const Discover = lazy(() => import("./pages/Discover"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const SyncDashboard = lazy(() => import("./pages/SyncDashboard"));
+const Actualites = lazy(() => import("./pages/Actualites"));
+const HubTrainStationStandalone = lazy(() => import("./pages/HubTrainStationStandalone"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const HubFerryStandalone = lazy(() => import("./pages/HubFerryStandalone"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Login = lazy(() => import("./pages/Login"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const AiHub = lazy(() => import("./pages/AiHub").then((module) => ({ default: module.AiHub })));
+const Onboarding3D = lazy(() => import("./components/Onboarding3D").then((module) => ({ default: module.Onboarding3D })));
 
 import { GlobalTranslateWidget } from "./components/GlobalTranslateWidget";
 import { PiPProvider } from "./contexts/PiPContext";
@@ -109,15 +111,18 @@ const AppShell = () => {
         <CartProvider>
           {!isHubPreviewRoute && <LocalizedHead />}
           <Toaster />
-          <Onboarding3D />
+          <Suspense fallback={null}>
+            {!isHubPreviewRoute && isRootLandingRoute && <Onboarding3D />}
+          </Suspense>
           <Sonner />
           {!isHubPreviewRoute && <GlobalTranslateWidget />}
           {!isHubPreviewRoute && <GlobalPiPWidget />}
           <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname}>
-              {APP_ROUTES.map((r) => (
-                <Route key={r.path} path={r.path} element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full">{r.element}</motion.div>} />
-              ))}
+            <Suspense fallback={null}>
+              <Routes location={location} key={location.pathname}>
+                {APP_ROUTES.map((r) => (
+                  <Route key={r.path} path={r.path} element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full">{r.element}</motion.div>} />
+                ))}
               {LOCALE_PREFIXES.flatMap((lang) =>
                 APP_ROUTES.map((r) => (
                   <Route
@@ -136,6 +141,7 @@ const AppShell = () => {
               <Route path="/ai-hub" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><AiHub /></motion.div>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+          </Suspense>
           </AnimatePresence>
       {!isHubPreviewRoute && <ThemeBubble />}
       {!isHubPreviewRoute && <Mobile3DSettingsToggle />}

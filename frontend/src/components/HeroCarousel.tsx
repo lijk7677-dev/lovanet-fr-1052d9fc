@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import VideoWithFallback from "@/components/VideoWithFallback";
 import { videos } from "@/data/videos";
 import { IMPORTED_VIDEOS } from "@/data/importedVideos";
 
@@ -510,7 +511,7 @@ export const HeroCarousel = ({ captureVideo }: { captureVideo?: string } = {}) =
       >
         <div className="relative w-[82%] sm:w-[72%] lg:w-[58%] overflow-hidden rounded-[1.35rem] border border-white/14 bg-black/10 shadow-[0_18px_42px_-18px_rgba(0,0,0,0.65)] backdrop-blur-[2px]">
           <div className="aspect-video">
-            <video
+            <VideoWithFallback
               src={captureVideo || "/custom_video_lovanet.mp4"}
               autoPlay
               muted
@@ -520,6 +521,7 @@ export const HeroCarousel = ({ captureVideo }: { captureVideo?: string } = {}) =
               className="h-full w-full object-cover"
               data-testid="anime-moments-capture-video"
               data-bg-video
+              seed="hero-carousel-capture"
             />
           </div>
           <div className="pointer-events-none absolute inset-0 ring-1 ring-white/10" />

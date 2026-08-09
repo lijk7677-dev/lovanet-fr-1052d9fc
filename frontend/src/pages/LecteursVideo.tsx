@@ -362,20 +362,16 @@ export default function LecteursVideo() {
                       }}
                       className="absolute inset-0 h-full w-full object-cover brightness-110 saturate-110 transition-transform duration-700 group-hover:scale-105"
                     />
-                    <video
+                    <VideoWithFallback
                       src={clip.src}
                       muted
                       loop
                       playsInline
                       preload="none"
-                      onError={(e) => {
-                        const video = e.currentTarget as HTMLVideoElement;
-                        video.src = "/catalogue-banner.mp4";
-                        video.load();
-                      }}
                       className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                      onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); }}
+                      onMouseEnter={(e: React.MouseEvent<HTMLVideoElement>) => (e.currentTarget as HTMLVideoElement).play().catch(() => {})}
+                      onMouseLeave={(e: React.MouseEvent<HTMLVideoElement>) => { (e.currentTarget as HTMLVideoElement).pause(); }}
+                      seed={`hover-preview-${clip.id}`}
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <span className="absolute right-2 top-2 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white backdrop-blur">

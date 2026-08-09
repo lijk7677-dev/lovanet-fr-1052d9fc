@@ -39,6 +39,7 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { MobileNavFloater } from "@/components/MobileNavFloater";
 import { NavSuggestionsBar } from "@/components/NavSuggestionsBar";
 import { NavSuggestionsIndicator } from "@/components/NavSuggestionsIndicator";
+import QuickNavCarousel from "@/components/QuickNavCarousel";
 const navTestIds: Record<string, string> = {
   "/": "navbar-home-link",
   "/anime-moments": "navbar-anime-moments-link",
@@ -210,6 +211,20 @@ export const Navbar = () => {
               <div className="flex items-center gap-2" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                 {renderLogo()}
               </div>
+              {/* Quick nav toggle button */}
+              <div className="ml-3 hidden lg:flex">
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('quicknav:toggle'));
+                    navigate('/anime-catalog');
+                  }}
+                  className="nav-theme-chip inline-flex h-10 w-10 items-center justify-center rounded-full"
+                  aria-label="Afficher le carrousel de navigation rapide"
+                >
+                  <Compass className="h-4 w-4" />
+                </button>
+              </div>
 
               {/* Dynamic suggestions bar — fills the empty space between logo and cart on mobile */}
               <NavSuggestionsBar />
@@ -378,6 +393,10 @@ export const Navbar = () => {
                           </Link>
                         );
                       })}
+                    </div>
+                    {/* Quick navigation carousel inside the mega menu for rapid access */}
+                    <div className="mt-4">
+                      <QuickNavCarousel />
                     </div>
                   </div>
                 </div>

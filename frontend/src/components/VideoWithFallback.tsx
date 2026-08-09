@@ -30,7 +30,6 @@ export default function VideoWithFallback({ src, seed, onError, ...props }: Vide
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption
     <video
       {...props}
       src={current}
