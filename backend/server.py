@@ -313,7 +313,7 @@ async def lovanet_chat(payload: ChatMessageRequest):
         api_key=key,
         session_id=f"lovanet-chat-{uuid.uuid4()}",
         system_message=system_prompt,
-    ).with_model("gemini", "gemini-3.5-flash")
+    ).with_model("gemini", "gemini-2.5-flash-lite")
 
     async def event_generator():
         try:
@@ -446,7 +446,7 @@ async def _translate_batch(texts: List[str], target_lang: str) -> List[str]:
                 f"Keep proper nouns, names of anime, brands, and URLs unchanged. "
                 f"Return ONLY a JSON array of translated strings, in the SAME ORDER as input. No commentary."
             ),
-        ).with_model("gemini", "gemini-3.5-flash")
+        ).with_model("gemini", "gemini-2.5-flash-lite")
         payload = _json.dumps(texts, ensure_ascii=False)
         resp = await chat.send_message(UserMessage(text=payload))
         text = (resp or "").strip()
