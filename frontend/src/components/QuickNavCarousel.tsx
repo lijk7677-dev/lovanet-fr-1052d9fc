@@ -81,7 +81,7 @@ export default function QuickNavCarousel({ items = DEFAULT_ITEMS, onClose }: { i
               aria-label={it.title}
               onClick={() => onClose && onClose()}
             >
-              <div className="absolute inset-0 rounded-2xl" style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06))`, backdropFilter: 'blur(6px)' }} />
+              <div className="absolute inset-0 rounded-2xl" style={{ background: `var(--nav-card-overlay, linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)))`, backdropFilter: 'blur(6px)' }} />
               <div className="relative h-full w-full rounded-xl p-3 flex flex-col justify-between">
                 <div className="text-sm font-semibold opacity-90 z-10">{it.subtitle}</div>
                 <div className="text-xl font-extrabold mt-2 z-10">{it.title}</div>

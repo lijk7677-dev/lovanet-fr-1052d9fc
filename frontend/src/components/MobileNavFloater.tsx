@@ -3,6 +3,9 @@ import { ChevronUp, Home, Sparkles, Film, Play, ShoppingBag, Compass } from "luc
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import navStyles, { NavStyle } from "@/data/navStyles";
+import { Star, Paint } from "lucide-react";
+import { useEffect } from "react";
 
 type SuggestionType = "trending" | "recommended" | "context" | "quick-link";
 
@@ -53,6 +56,41 @@ export function MobileNavFloater({ isOpen, onToggle }: { isOpen: boolean; onTogg
     const path = Object.keys(contextualSuggestions).find((p) => pathname === p || pathname.startsWith(`${p}/`));
     return contextualSuggestions[path || "default"];
   }, [pathname]);
+
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [favorite, setFavorite] = useState<string | null>(() => {
+    try { return localStorage.getItem('lovanet.nav.favorite'); } catch { return null; }
+  });
+
+  useEffect(() => {
+    // no-op: ensure favorite state sync if changed elsewhere
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'lovanet.nav.favorite') setFavorite(e.newValue);
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const applyStyle = (s: NavStyle) => {
+    try {
+      localStorage.setItem('lovanet.nav.style', s.id);
+    } catch {}
+    window.dispatchEvent(new CustomEvent('navstyle:change', { detail: s.id }));
+  };
+
+  const toggleFavorite = (id: string) => {
+    try {
+      if (favorite === id) {
+        localStorage.removeItem('lovanet.nav.favorite');
+        setFavorite(null);
+      } else {
+        localStorage.setItem('lovanet.nav.favorite', id);
+        setFavorite(id);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -136,13 +174,48 @@ export function MobileNavFloater({ isOpen, onToggle }: { isOpen: boolean; onTogg
               </motion.button>
             ))}
           </div>
+            {/* Personalization toggle */}
+            <div className="border-t border-white/10 bg-white/5 px-4 py-2">
+              <div className="flex items-center justify-between">
+                <button onClick={() => setShowCustomizer((s) => !s)} className="inline-flex items-center gap-2 rounded-full bg-white/6 px-3 py-2 text-sm text-white" aria-expanded={showCustomizer}>
+                  <Paint className="h-4 w-4" /> Personnaliser
+                </button>
+                <div className="flex items-center gap-2">
+                  <p className="text-[10px] text-white/40">✨ Suggestions intelligentes</p>
+                </div>
+              </div>
 
-          {/* Quick stats / footer */}
-          <div className="border-t border-white/10 bg-white/5 px-4 py-2 text-center">
-            <p className="text-[10px] text-white/40">
-              ✨ Suggestions intelligentes basées sur votre parcours
-            </p>
-          </div>
+              {showCustomizer && (
+                <div className="mt-3">
+                  <div className="text-xs text-white/70 mb-2">Choisissez un style pour le menu et sauvegardez en favori.</div>
+                  <div className="flex gap-2 overflow-x-auto py-2">
+                    {navStyles.map((s) => (
+                      <div key={s.id} className="flex-shrink-0 w-36">
+                        <button
+                          onClick={() => applyStyle(s)}
+                          className="w-full h-20 rounded-lg overflow-hidden border border-white/12 flex flex-col"
+                          style={{ background: s.cardOverlay }}
+                        >
+                          <div className="p-2 text-xs text-left" style={{ color: s.textColor, fontFamily: s.fontFamily }}>
+                            <div className="font-semibold truncate">{s.name}</div>
+                            <div className="text-[11px] opacity-90">{s.accent}</div>
+                          </div>
+                        </button>
+                        <div className="mt-1 flex items-center justify-between">
+                          <button onClick={() => applyStyle(s)} className="text-xs text-white/80">Appliquer</button>
+                          <button onClick={() => toggleFavorite(s.id)} aria-pressed={favorite === s.id} className="p-1">
+                            <Star className={`h-4 w-4 ${favorite === s.id ? 'text-yellow-400' : 'text-white/60'}`} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {favorite && (
+                    <div className="mt-2 text-xs text-white/80">Favori: {navStyles.find((x) => x.id === favorite)?.name}</div>
+                  )}
+                </div>
+              )}
+            </div>
         </div>
       </motion.div>
     </AnimatePresence>

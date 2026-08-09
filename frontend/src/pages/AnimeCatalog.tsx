@@ -1,5 +1,5 @@
-const CATALOG_TOP_VIDEO = "/catalogue-banner.mp4";
 import { useEffect, useMemo, useRef, useState } from "react";
+const CATALOG_TOP_VIDEO = "/catalogue-banner.mp4";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
@@ -402,7 +402,7 @@ export default function AnimeCatalog() {
     return () => window.removeEventListener('quicknav:toggle', handler as EventListener);
   }, []);
 
-  
+  useEffect(() => {
     (async () => {
       try {
         const [topIdb, gridIdb] = await Promise.all([idbGet<Media[]>("catalog.top"), idbGet<Media[]>("catalog.grid")]);

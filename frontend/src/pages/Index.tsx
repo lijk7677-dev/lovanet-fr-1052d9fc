@@ -6,6 +6,7 @@ import { PageShell } from "@/components/PageShell";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import MiniCatalogOrb from "@/components/MiniCatalogOrb";
 import AnimeMomentsPresentation from "@/components/AnimeMomentsPresentation";
+import QuickNavCarousel from "@/components/QuickNavCarousel";
 import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import crystalCity from "@/assets/crystal-city.jpg.asset.json";
 

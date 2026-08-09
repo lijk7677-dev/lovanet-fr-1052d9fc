@@ -116,6 +116,7 @@ const mobileGroups = [
 ];
 
 export const Navbar = () => {
+  const [appliedNavStyle, setAppliedNavStyle] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -165,6 +166,44 @@ export const Navbar = () => {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Apply saved nav style on mount and listen for changes
+  useEffect(() => {
+    const applyStyleById = (id: string | null) => {
+      try {
+        if (!id) {
+          document.documentElement.style.removeProperty('--nav-card-overlay');
+          document.documentElement.style.removeProperty('--nav-text-color');
+          document.documentElement.style.removeProperty('--nav-accent');
+          document.documentElement.style.removeProperty('--nav-font');
+          setAppliedNavStyle(null);
+          return;
+        }
+        const styles = require('@/data/navStyles').default as any[];
+        const s = styles.find((x) => x.id === id);
+        if (!s) return;
+        document.documentElement.style.setProperty('--nav-card-overlay', s.cardOverlay);
+        document.documentElement.style.setProperty('--nav-text-color', s.textColor);
+        document.documentElement.style.setProperty('--nav-accent', s.accent);
+        document.documentElement.style.setProperty('--nav-font', s.fontFamily);
+        setAppliedNavStyle(id);
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    try {
+      const stored = localStorage.getItem('lovanet.nav.style');
+      applyStyleById(stored);
+    } catch {}
+
+    const onChange = (e: Event) => {
+      const id = (e as CustomEvent).detail as string | null;
+      applyStyleById(id);
+    };
+    window.addEventListener('navstyle:change', onChange as EventListener);
+    return () => window.removeEventListener('navstyle:change', onChange as EventListener);
   }, []);
 
   useEffect(() => {
@@ -390,14 +429,14 @@ export const Navbar = () => {
                               )}
                               style={{ background: 'transparent' }}
                             >
-                              <div className="absolute inset-0 rounded-2xl bg-black/40 backdrop-blur-sm" />
+                              <div className="absolute inset-0 rounded-2xl" style={{ background: 'var(--nav-card-overlay, rgba(0,0,0,0.4))', backdropFilter: 'blur(6px)' }} />
                               <div className="relative z-10 flex items-center h-full gap-3">
                                 <span className="flex items-center justify-center h-10 w-10 rounded-lg bg-white/6 text-white/90">
                                   <item.icon className="h-5 w-5" strokeWidth={1.6} />
                                 </span>
-                                <div className="min-w-0">
-                                  <div className="text-sm font-semibold text-white">{item.label}</div>
-                                  <div className="text-xs text-white/90 truncate">{item.desc}</div>
+                                <div className="min-w-0" style={{ color: 'var(--nav-text-color, #fff)', fontFamily: 'var(--nav-font, Inter, system-ui, sans-serif)' }}>
+                                  <div className="text-sm font-semibold">{item.label}</div>
+                                  <div className="text-xs truncate">{item.desc}</div>
                                 </div>
                                 {active && <span className="nav-theme-active-dot absolute left-0 top-5 h-10 w-1 rounded-r-full" />}
                               </div>
