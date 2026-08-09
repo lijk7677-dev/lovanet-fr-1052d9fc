@@ -57,7 +57,7 @@ export const ManualSyncButton = ({
   platform = "all",
   label = "Sync manuel",
   onDone,
-  variant = "floating",
+  variant = "inline",
   className,
 }: Props) => {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");

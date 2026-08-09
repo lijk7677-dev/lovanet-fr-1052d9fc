@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import navStyles, { NavStyle } from "@/data/navStyles";
-import { Star, Paint } from "lucide-react";
+import { Star, Palette } from "lucide-react";
 import { useEffect } from "react";
 
 type SuggestionType = "trending" | "recommended" | "context" | "quick-link";
@@ -178,7 +178,7 @@ export function MobileNavFloater({ isOpen, onToggle }: { isOpen: boolean; onTogg
             <div className="border-t border-white/10 bg-white/5 px-4 py-2">
               <div className="flex items-center justify-between">
                 <button onClick={() => setShowCustomizer((s) => !s)} className="inline-flex items-center gap-2 rounded-full bg-white/6 px-3 py-2 text-sm text-white" aria-expanded={showCustomizer}>
-                  <Paint className="h-4 w-4" /> Personnaliser
+                  <Palette className="h-4 w-4" /> Personnaliser
                 </button>
                 <div className="flex items-center gap-2">
                   <p className="text-[10px] text-white/40">✨ Suggestions intelligentes</p>

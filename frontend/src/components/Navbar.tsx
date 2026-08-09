@@ -40,6 +40,7 @@ import { MobileNavFloater } from "@/components/MobileNavFloater";
 import { NavSuggestionsBar } from "@/components/NavSuggestionsBar";
 import { NavSuggestionsIndicator } from "@/components/NavSuggestionsIndicator";
 import QuickNavCarousel from "@/components/QuickNavCarousel";
+import LeftFloaterPanel from "@/components/LeftFloaterPanel";
 const navTestIds: Record<string, string> = {
   "/": "navbar-home-link",
   "/anime-moments": "navbar-anime-moments-link",
@@ -270,6 +271,7 @@ export const Navbar = () => {
 
   return (
     <>
+      <LeftFloaterPanel />
       {/* One-time AI hint about personalization */}
       {showStyleHint && (
         <div className="fixed top-20 right-4 z-60 max-w-xs">
