@@ -211,17 +211,11 @@ export const Navbar = () => {
       if (stored) {
         applyStyleById(stored);
       } else {
-        // No user selection: pick a random preset different from lastRandom
+        // No user selection: apply a stable default preset to avoid changing theme per visit
         try {
-          const styles = require('@/data/navStyles').default as any[];
-          const last = localStorage.getItem('lovanet.nav.lastRandom');
-          const options = styles.map((s) => s.id).filter((id) => id !== last);
-          const pick = options[Math.floor(Math.random() * options.length)];
-          if (pick) {
-            localStorage.setItem('lovanet.nav.style', pick);
-            localStorage.setItem('lovanet.nav.lastRandom', pick);
-            applyStyleById(pick, true);
-          }
+          const defaultPreset = 'preset-1';
+          localStorage.setItem('lovanet.nav.style', defaultPreset);
+          applyStyleById(defaultPreset, false);
         } catch {}
       }
     } catch {}
@@ -300,7 +294,7 @@ export const Navbar = () => {
                 {renderLogo()}
               </div>
               {/* Quick nav toggle button */}
-              <div className="ml-3 hidden lg:flex">
+              <div className="ml-3 hidden md:flex">
                 <button
                   type="button"
                   onClick={() => {
@@ -317,7 +311,7 @@ export const Navbar = () => {
               {/* Dynamic suggestions bar — fills the empty space between logo and cart on mobile */}
               <NavSuggestionsBar />
 
-              <div className="hidden items-center gap-2 lg:flex" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
+              <div className="items-center gap-2 hidden md:flex" onMouseEnter={cancelClose} onMouseLeave={scheduleClose}>
                 <button
                   type="button"
                   aria-haspopup="true"
@@ -332,7 +326,7 @@ export const Navbar = () => {
                     setMegaOpen(true);
                   }}
                   className={cn(
-                    "nav-theme-chip hidden h-11 w-11 items-center justify-center rounded-full lg:inline-flex ml-auto",
+                    "nav-theme-chip h-11 w-11 items-center justify-center rounded-full lg:inline-flex ml-auto",
                     megaOpen && "nav-theme-chip-active",
                   )}
                   aria-label="Ouvrir le menu"
@@ -343,7 +337,7 @@ export const Navbar = () => {
                 </button>
               </div>
 
-              <nav className="mx-auto hidden flex-1 items-center justify-center gap-1 overflow-hidden lg:flex">
+              <nav className="mx-auto hidden flex-1 items-center justify-center gap-1 overflow-hidden md:flex">
                 {rotatingNavItems.map((item, index) => {
                   const active = isActivePath(item.to);
                   const Icon = item.icon;

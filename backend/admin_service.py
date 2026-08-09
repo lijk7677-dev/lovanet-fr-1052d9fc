@@ -71,8 +71,6 @@ async def sync_status(admin=Depends(get_admin_user)):
         {"key": "AniList", "status": "ok", "inserted": 0, "updated": 0}
     ]}
 
-@admin_router.post("/sync/run")
-
 class AnimeOverride(BaseModel):
     title_romaji: str | None = None
     description: str | None = None
@@ -105,3 +103,9 @@ async def delete_override(anime_id: int, request: Request, admin=Depends(get_adm
 
 async def sync_run(admin=Depends(get_admin_user)):
     return {"ok": True}
+
+
+# Register the sync/run endpoint properly (decorator must be on the function)
+@admin_router.post("/sync/run")
+async def sync_run_endpoint(admin=Depends(get_admin_user)):
+    return await sync_run(admin)

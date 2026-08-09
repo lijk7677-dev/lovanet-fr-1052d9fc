@@ -141,6 +141,29 @@ const ChaineYoutube = () => {
           return !unavailable.has(id) && status !== "unavailable" && status !== "hidden";
         });
         if (alive) setChannelItems(live);
+
+        // If Supabase returned nothing, fall back to backend /api/videos
+        if (alive && (!live || live.length === 0)) {
+          try {
+            const res = await fetch(`${API}/videos?limit=500`);
+            if (res.ok) {
+              const json = await res.json();
+              const vids = (json?.videos || []).map((v: any) => ({
+                id: v.external_id || v.id,
+                external_id: v.external_id || v.id,
+                title: v.title || v.name || "Anime Moments officiel",
+                thumbnail_url: v.thumbnail_url || v.thumbnail || ytThumb(v.external_id || v.id),
+                video_url: v.video_url || v.videoUrl || `https://www.youtube.com/watch?v=${v.external_id || v.id}`,
+                published_at: v.published_at || v.publishedAt || null,
+                episode: v.episode ?? null,
+                origin: "channel",
+              }));
+              if (alive && vids.length > 0) setChannelItems(vids);
+            }
+          } catch (e) {
+            // ignore fallback failure
+          }
+        }
       } catch {
         if (alive) setChannelItems([]);
       } finally {
@@ -269,7 +292,15 @@ const ChaineYoutube = () => {
       published_at: v.date ?? null,
       episode: v.episode ?? null,
       origin: "channel" as VideoOrigin,
-    })), ...imported];
+    })), ...imported].filter((item) => {
+      // Exclude items known to be unavailable/hidden to avoid reintroducing removed videos
+      try {
+        const status = getVideoStatusSync(item.external_id || item.id);
+        return status !== 'unavailable' && status !== 'hidden';
+      } catch {
+        return true;
+      }
+    });
 
     // Ensure a minimum visible catalogue size (pad by repeating items) to
     // approximate the previous "110 trailers" catalog when backend is empty.
@@ -278,6 +309,11 @@ const ChaineYoutube = () => {
     for (let i = 0; out.length < target && i < merged.length * 5; i++) {
       const item = merged[i % merged.length];
       if (!item) break;
+      // Skip repeats if item is known unavailable/hidden
+      try {
+        const status = getVideoStatusSync(item.external_id || item.id);
+        if (status === 'unavailable' || status === 'hidden') continue;
+      } catch {}
       // create a stable id by appending an index when repeating
       out.push({ ...item, id: `${item.id}-p${Math.floor(i / merged.length)}` });
     }
