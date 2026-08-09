@@ -58,15 +58,14 @@ export default function QuickNavCarousel({ items = DEFAULT_ITEMS, onClose }: { i
   return (
     <div className="w-full py-6">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold">Navigation rapide</h3>
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-muted-foreground">Balayez ou glissez pour explorer</p>
-            <button onClick={() => onClose && onClose()} aria-label="Fermer la navigation rapide" className="rounded-full bg-white/6 p-2 text-sm text-white/90 hover:bg-white/10">
-              Fermer
-            </button>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold">Navigation rapide</h3>
+            <div className="flex items-center gap-3">
+              <button onClick={() => onClose && onClose()} aria-label="Fermer la navigation rapide" className="rounded-full bg-white/6 p-2 text-sm text-white/90 hover:bg-white/10">
+                Fermer
+              </button>
+            </div>
           </div>
-        </div>
         <div
           ref={ref}
           className="relative flex gap-4 overflow-x-auto no-scrollbar py-4 px-2 will-change-transform"
