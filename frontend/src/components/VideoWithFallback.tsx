@@ -34,6 +34,7 @@ export default function VideoWithFallback({ src, seed, onError, ...props }: Vide
       {...props}
       src={current}
       onError={handleError}
+      data-expected-src={src}
     />
   );
 }

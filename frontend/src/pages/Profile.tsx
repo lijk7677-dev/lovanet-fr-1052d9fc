@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navbar } from "@/components/Navbar";
+import { PageShell } from "@/components/PageShell";
 import NeonFooterBar from "@/components/NeonFooterBar";
 import { LocalizedHead } from "@/components/LocalizedHead";
 import { Button } from "@/components/ui/button";
@@ -101,9 +101,9 @@ export default function Profile() {
   const progressPercent = (rewards.xp % 1000) / 10; // Assuming 1000 XP per level
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden font-sans">
-      <Navbar />
-      <div className="h-16" />
+    <PageShell>
+      <div className="min-h-screen bg-background text-foreground overflow-x-hidden font-sans">
+        <div className="h-16" />
 
       {/* IDEA 1: Bannière animée personnalisable */}
       <div className="relative h-[250px] md:h-[350px] w-full overflow-hidden">
@@ -390,5 +390,6 @@ export default function Profile() {
 
       <NeonFooterBar />
     </div>
+  </PageShell>
   );
 }

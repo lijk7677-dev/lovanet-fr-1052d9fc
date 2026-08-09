@@ -31,10 +31,10 @@ registerRoute(
 
 registerRoute(
   ({ request }) => request.destination === 'video' || request.destination === 'audio',
-  new CacheFirst({
+  new StaleWhileRevalidate({
     cacheName: 'media-cache',
     plugins: [
-      new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+      new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 6 * 60 * 60 }),
     ],
   })
 );
