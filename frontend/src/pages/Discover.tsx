@@ -6,7 +6,6 @@ import { HubEmbedFrame } from "@/components/HubEmbedFrame";
 import { SHOP_PRODUCTS, categoryLabel } from "@/data/shopProducts";
 import { videos, thumb } from "@/data/videos";
 import { ShoppingBag, Youtube, Music2, Play, Film, Calendar, Sparkles, ArrowRight } from "lucide-react";
-import { ManualSyncButton } from "@/components/ManualSyncButton";
 
 /**
  * /decouvrir — SEO landing page.
@@ -139,7 +138,6 @@ const Discover = () => {
 
   return (
     <PageShell>
-      <ManualSyncButton platform="all" label="Sync toutes plateformes" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }} />
       {catalogChunks.map((chunk, i) => (

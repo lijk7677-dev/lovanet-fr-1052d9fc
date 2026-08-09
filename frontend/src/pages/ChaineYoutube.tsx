@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminRemoveVideo } from "@/components/AdminRemoveVideo";
-import { ManualSyncButton } from "@/components/ManualSyncButton";
 import { ResilientVideoFrame } from "@/components/ResilientVideoFrame";
 import { supabase } from "@/integrations/supabase/client";
 import { createImageFallbackHandler, siteFallbackImage } from "@/lib/mediaFallback";
@@ -46,13 +45,19 @@ type VideoRow = {
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const PAGE_SIZE = 24;
 const TRAILER_WINDOW_SIZE = 110;
-const YOUTUBE_BANNER_VIDEO = "/manga-universe-banner.mp4";
+const YOUTUBE_BANNER_VIDEO = "/banner-top.mp4";
 
 const isNew = (d?: string | null) =>
   !!d && Date.now() - new Date(d).getTime() < 7 * 24 * 60 * 60 * 1000;
 
 const fmt = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }) : "";
+
+const isVisibleVideo = (row: VideoRow) => {
+  if (!row.external_id) return false;
+  const status = getVideoStatusSync(row.external_id);
+  return status !== "unavailable" && status !== "hidden";
+};
 
 const safeThumbnail = (row: VideoRow) =>
   row.thumbnail_url || (row.external_id ? ytThumb(row.external_id) : null) || siteFallbackImage(row.id, null);
@@ -292,15 +297,7 @@ const ChaineYoutube = () => {
       published_at: v.date ?? null,
       episode: v.episode ?? null,
       origin: "channel" as VideoOrigin,
-    })), ...imported].filter((item) => {
-      // Exclude items known to be unavailable/hidden to avoid reintroducing removed videos
-      try {
-        const status = getVideoStatusSync(item.external_id || item.id);
-        return status !== 'unavailable' && status !== 'hidden';
-      } catch {
-        return true;
-      }
-    });
+    })), ...imported].filter((item) => isVisibleVideo(item));
 
     // Ensure a minimum visible catalogue size (pad by repeating items) to
     // approximate the previous "110 trailers" catalog when backend is empty.
@@ -323,7 +320,7 @@ const ChaineYoutube = () => {
     return out.length ? out : merged;
   }, []);
 
-  const officialList = loaded && channelItems.length > 0 ? channelItems : fallbackChannel;
+  const officialList = loaded ? (channelItems.length > 0 ? channelItems : fallbackChannel) : [];
 
   const trailerWindow = useMemo(() => {
     const officialIds = new Set(officialList.map((v) => v.external_id).filter(Boolean));
@@ -343,10 +340,11 @@ const ChaineYoutube = () => {
   }, [officialList, trailerWindow]);
 
   const filteredList = useMemo(() => {
+    if (!loaded) return [];
     const q = query.trim().toLowerCase();
     if (!q) return mixedList;
     return mixedList.filter((v) => `${v.title} ${v.episode ?? ""}`.toLowerCase().includes(q));
-  }, [mixedList, query]);
+  }, [mixedList, query, loaded]);
 
   useEffect(() => {
     setPage(1);
@@ -377,7 +375,6 @@ const ChaineYoutube = () => {
 
   return (
     <PageShell>
-      <ManualSyncButton platform="youtube" label="Sync YouTube" onDone={() => setRefreshToken((v) => v + 1)} />
       <section className="container mx-auto px-4 lg:px-8 pt-6" data-testid="youtube-top-video-banner">
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_-42px_rgba(56,189,248,0.6)] h-[260px] sm:h-[320px]">
           <VideoWithFallback

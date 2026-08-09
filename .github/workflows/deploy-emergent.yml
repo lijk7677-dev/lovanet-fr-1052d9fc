@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_BASE_URL: https://animemomentsofficiel.fr
+      REACT_APP_BACKEND_URL: https://animemomentsofficiel.fr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,20 +30,20 @@ jobs:
         working-directory: frontend
         run: yarn build
 
-      - name: Find assets
+      - name: Find build files
         id: find_assets
         run: |
-          find frontend/public -type f \( -iname '*.mp4' -o -iname '*.webm' \) -print > assets.txt
+          find frontend/build -type f -print > assets.txt
 
-      - name: Upload assets to Emergent integration
+      - name: Upload build output to Emergent integration
         if: ${{ secrets.EMERGENT_API_KEY }}
         env:
           EMERGENT_API_KEY: ${{ secrets.EMERGENT_API_KEY }}
         run: |
           while IFS= read -r f; do
-            fname=$(basename "$f")
-            echo "Uploading $f -> /public/$fname"
-            curl -sS -X POST "https://integrations.emergentagent.com/v1/uploads?dest=/public/$fname" \
+            rel=${f#frontend/build/}
+            echo "Uploading $f -> /$rel"
+            curl -sS -X POST "https://integrations.emergentagent.com/v1/uploads?dest=/$rel" \
               -H "Authorization: Bearer $EMERGENT_API_KEY" \
               -F "file=@$f"
           done < assets.txt
@@ -54,24 +55,13 @@ jobs:
           CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           SITE_BASE_URL: ${{ env.SITE_BASE_URL }}
         run: |
-          python3 - <<'PY'
+          python3 - <<'PY' > cf_payload.json
 import json
 files=[]
 with open('assets.txt') as f:
   for line in f:
-    fname=line.strip().split('/')[-1]
-    files.append(f"{" + 'SITE_BASE_URL' + "}/"+fname)
-print(json.dumps({'files':files}))
-PY
-
-          # The python block above prints JSON to stdout; send it to Cloudflare
-          python3 - <<'PY' > cf_payload.json
-import json,sys
-files=[]
-with open('assets.txt') as f:
-  for line in f:
-    fname=line.strip().split('/')[-1]
-    files.append('https://animemomentsofficiel.fr/'+fname)
+    path=line.strip().replace('frontend/build/', '')
+    files.append('https://animemomentsofficiel.fr/' + path)
 print(json.dumps({'files':files}))
 PY
 

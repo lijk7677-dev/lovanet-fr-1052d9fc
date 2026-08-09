@@ -87,10 +87,22 @@ Le build doit aboutir avec un message similaire à :
 - `Compiled with warnings.`
 - `The build folder is ready to be deployed.`
 
+> Important : la build de production doit utiliser l’URL `REACT_APP_BACKEND_URL` de production.
+> Le workflow GitHub Actions `/.github/workflows/deploy-emergent.yml` force cette valeur pendant le build.
+
 ---
 
 ## 7. Déployer le dossier `build`
 Le dossier `frontend/build` est la sortie de production. Déployez ce dossier sur votre hébergeur statique ou CDN.
+
+Dans le pipeline actuel, `deploy-emergent.yml` fait :
+- `yarn build` dans `frontend`
+- upload de tous les fichiers de `frontend/build` vers l’intégration Emergent
+- purge Cloudflare des fichiers publiés
+
+Si l’aperçu Emergent montre bien les changements mais pas la production, cela signifie généralement que le site complet n’était pas uploadé comme build final.
+
+---
 
 ---
 

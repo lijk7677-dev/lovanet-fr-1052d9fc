@@ -577,7 +577,6 @@ const PrimeVideo = () => {
 
   return (
     <PageShell>
-      <ManualSyncButton platform="prime" label="Sync Prime" onDone={() => window.location.reload()} />
 
       <section className="container mx-auto px-4 lg:px-8 py-10 text-center">
         <p className="text-xs uppercase tracking-[0.25em] text-cyan-300 mb-2">Streaming partenaire</p>
