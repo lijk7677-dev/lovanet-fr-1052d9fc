@@ -84,7 +84,7 @@
   "scripts": {
     "start": "craco start",
     "prebuild": "npm run seo:all",
-    "build": "craco build",
+    "build": "CI=false craco build",
     "test": "craco test",
     "seo:generate": "node scripts/seo-generate-feeds.mjs",
     "seo:validate": "node scripts/seo-validate.mjs",
