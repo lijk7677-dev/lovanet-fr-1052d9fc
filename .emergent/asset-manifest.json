@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-08-09T05:50:17Z",
+  "asset_hash": "3c8f4ecad87695b10401d104bc95daeb",
+  "videos": {
+    "leaderboard_banner": "/leaderboard-banner.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "catalogue_banner": "/catalogue-banner.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "actualites_banner": "/actualites-banner-2.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "hero_banner_web": "/custom-hero-banner-web.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "hero_banner_mobile": "/custom-hero-banner-mobile.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "global_bg_web": "/global-bg-web.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "global_bg_mobile": "/global-bg-mobile.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "lovanet_custom": "/custom_video_lovanet.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "manga_universe": "/manga-universe-banner.mp4?v=3c8f4ecad87695b10401d104bc95daeb",
+    "home_banner": "/home-banner.mp4?v=3c8f4ecad87695b10401d104bc95daeb"
+  },
+  "notes": "All video URLs include cache-buster query param to force fresh loads"
+}
