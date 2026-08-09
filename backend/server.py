@@ -277,60 +277,6 @@ async def news_list(
     return filter_items(cache["items"], category=category, source=source, query=q, sort=sort, limit=limit, offset=offset)
 
 
-# ==== Lova-Bot Chat Endpoint ====
-class ChatMessageRequest(BaseModel):
-    messages: List[Dict[str, str]]
-    bot_type: str = "lova-bot"
-
-@api_router.post("/chat/lovanet")
-async def lovanet_chat(payload: ChatMessageRequest):
-    key = os.environ.get("EMERGENT_LLM_KEY")
-    if not key:
-        raise HTTPException(status_code=500, detail="Missing API Key")
-
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
-        from fastapi.responses import StreamingResponse
-        import json
-    except ImportError:
-        raise HTTPException(status_code=500, detail="emergentintegrations library not installed")
-
-    bot_prompts = {
-        "lova-bot": "Tu es Lova-Bot, un assistant amical, joyeux et enthousiaste. Tu guides les utilisateurs sur la plateforme Lovanet (animés, mangas, boutique).",
-        "lova-ai": "Tu es Lova-AI, une intelligence cristalline connectée, sérieuse, technologique et précise. Tu donnes des recommandations pointues sur l'univers Lovanet.",
-        "lova-king": "Tu es Lova King AI, l'esprit millénaire, majestueux et protecteur. Tu parles avec sagesse et autorité, protégeant l'écosystème Lovanet."
-    }
-
-    system_prompt = bot_prompts.get(payload.bot_type, bot_prompts["lova-bot"])
-
-    # Flatten conversation history into the system prompt or just send the last message
-    # For a simple implementation, we can just send the last user message along with context
-    last_user_message = next((m["content"] for m in reversed(payload.messages) if m["role"] == "user"), "")
-    if not last_user_message:
-        raise HTTPException(status_code=400, detail="No user message found")
-
-    chat = LlmChat(
-        api_key=key,
-        session_id=f"lovanet-chat-{uuid.uuid4()}",
-        system_message=system_prompt,
-    ).with_model("gemini", "gemini-2.5-flash-lite")
-
-    async def event_generator():
-        try:
-            async for ev in chat.stream_message(UserMessage(text=last_user_message)):
-                if isinstance(ev, TextDelta):
-                    yield ev.content
-                elif isinstance(ev, StreamDone):
-                    break
-        except Exception as e:
-            logger.error(f"Chat stream error: {e}")
-            yield "Désolé, j'ai eu un problème de connexion."
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
-    )
 
 
 @api_router.get("/news/sources")
