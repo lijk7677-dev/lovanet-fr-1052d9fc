@@ -11,39 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_BASE_URL: https://animemomentsofficiel.fr
-      REACT_APP_BACKEND_URL: https://animemomentsofficiel.fr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: yarn
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: yarn install --frozen-lockfile
-
-      - name: Build frontend
-        working-directory: frontend
-        run: yarn build
-
-      - name: Find build files
+      - name: Find assets
         id: find_assets
         run: |
-          find frontend/build -type f -print > assets.txt
+          find frontend/public -type f \( -iname '*.mp4' -o -iname '*.webm' \) -print > assets.txt
 
-      - name: Upload build output to Emergent integration
+      - name: Upload assets to Emergent integration
         if: ${{ secrets.EMERGENT_API_KEY }}
         env:
           EMERGENT_API_KEY: ${{ secrets.EMERGENT_API_KEY }}
         run: |
           while IFS= read -r f; do
-            rel=${f#frontend/build/}
-            echo "Uploading $f -> /$rel"
-            curl -sS -X POST "https://integrations.emergentagent.com/v1/uploads?dest=/$rel" \
+            fname=$(basename "$f")
+            echo "Uploading $f -> /public/$fname"
+            curl -sS -X POST "https://integrations.emergentagent.com/v1/uploads?dest=/public/$fname" \
               -H "Authorization: Bearer $EMERGENT_API_KEY" \
               -F "file=@$f"
           done < assets.txt
@@ -55,13 +40,24 @@ jobs:
           CF_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           SITE_BASE_URL: ${{ env.SITE_BASE_URL }}
         run: |
-          python3 - <<'PY' > cf_payload.json
+          python3 - <<'PY'
 import json
 files=[]
 with open('assets.txt') as f:
   for line in f:
-    path=line.strip().replace('frontend/build/', '')
-    files.append('https://animemomentsofficiel.fr/' + path)
+    fname=line.strip().split('/')[-1]
+    files.append(f"{" + 'SITE_BASE_URL' + "}/"+fname)
+print(json.dumps({'files':files}))
+PY
+
+          # The python block above prints JSON to stdout; send it to Cloudflare
+          python3 - <<'PY' > cf_payload.json
+import json,sys
+files=[]
+with open('assets.txt') as f:
+  for line in f:
+    fname=line.strip().split('/')[-1]
+    files.append('https://animemomentsofficiel.fr/'+fname)
 print(json.dumps({'files':files}))
 PY
 

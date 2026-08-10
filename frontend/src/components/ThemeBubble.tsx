@@ -873,7 +873,7 @@ export const ThemeBubble = () => {
         onClick={() => setOpen(true)}
         aria-label="Ouvrir le sélecteur de thèmes"
         data-testid="theme-bubble-toggle"
-        className="theme-orb-button fixed bottom-4 left-3 z-[9999] h-[52px] w-[52px] rounded-full p-0 shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.4)] sm:left-4 md:bottom-6 md:left-6 md:h-16 md:w-16"
+        className="theme-orb-button fixed bottom-4 left-3 z-[9999] h-[52px] w-[52px] rounded-full p-0 shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.4)] sm:left-4 md:bottom-6 md:left-6 md:h-16 md:w-16 lg:hidden"
       >
         <span className="theme-orb-halo" aria-hidden="true" />
         <span className="theme-orb-core" aria-hidden="true" />

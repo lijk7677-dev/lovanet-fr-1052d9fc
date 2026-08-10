@@ -97,54 +97,13 @@ const REDIRECTS: Array<{ from: string; to: string }> = [
 const AppShell = () => {
   usePushNotifications();
   const location = useLocation();
+  if (location.hash?.includes('session_id=')) { return <AuthCallback />; }
+
   const pathname = location.pathname;
-  const assetVersion = process.env.REACT_APP_ASSET_VERSION;
   const isHubPreviewRoute = pathname.startsWith("/hub/") || LOCALE_PREFIXES.some((lang) => pathname.startsWith(`/${lang}/hub/`));
   const rootPaths = new Set(["/", ...LOCALE_PREFIXES.map((lang) => `/${lang}`)]);
   const isRootLandingRoute = rootPaths.has(pathname);
-
-  useEffect(() => {
-    if (!assetVersion || typeof window === 'undefined') {
-      return;
-    }
-
-    const normalizeUrl = (rawUrl: string) => {
-      try {
-        const url = new URL(rawUrl, window.location.origin);
-        if (url.origin !== window.location.origin) {
-          return rawUrl;
-        }
-        if (!/\.(mp4|webm|mp3|wav|jpg|jpeg|png|svg|webp)$/i.test(url.pathname)) {
-          return rawUrl;
-        }
-        if (url.searchParams.get('v') === assetVersion) {
-          return rawUrl;
-        }
-        url.searchParams.set('v', assetVersion);
-        return url.pathname + url.search;
-      } catch {
-        return rawUrl;
-      }
-    };
-
-    const patchElement = (element: HTMLElement, attribute: string) => {
-      const value = element.getAttribute(attribute);
-      if (!value) return;
-      const updated = normalizeUrl(value);
-      if (updated !== value) {
-        element.setAttribute(attribute, updated);
-      }
-    };
-
-    const patchAll = () => {
-      document.querySelectorAll<HTMLVideoElement>('video[src]').forEach((video) => patchElement(video, 'src'));
-      document.querySelectorAll<HTMLSourceElement>('source[src]').forEach((source) => patchElement(source, 'src'));
-      document.querySelectorAll<HTMLElement>('[poster]').forEach((element) => patchElement(element, 'poster'));
-      document.querySelectorAll<HTMLSourceElement>('[srcset]').forEach((source) => patchElement(source, 'srcset'));
-    };
-
-    patchAll();
-  }, [assetVersion, pathname]);
+  const isCatalogLikeRoute = pathname.startsWith("/anime-catalog") || pathname.startsWith("/tiktok") || pathname.startsWith("/anime-countdown") || LOCALE_PREFIXES.some((lang) => pathname.startsWith(`/${lang}/anime-catalog`) || pathname.startsWith(`/${lang}/tiktok`) || pathname.startsWith(`/${lang}/anime-countdown`));
 
   return (
     <PiPProvider>
@@ -164,30 +123,30 @@ const AppShell = () => {
                 {APP_ROUTES.map((r) => (
                   <Route key={r.path} path={r.path} element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full">{r.element}</motion.div>} />
                 ))}
-                {LOCALE_PREFIXES.flatMap((lang) =>
-                  APP_ROUTES.map((r) => (
-                    <Route
-                      key={`${lang}-${r.path}`}
-                      path={r.path === "/" ? `/${lang}` : `/${lang}${r.path}`}
-                      element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full">{r.element}</motion.div>}
-                    />
-                  )),
-                )}
-                {REDIRECTS.map((r) => (
-                  <Route key={`redir-${r.from}`} path={r.from} element={<Navigate to={r.to} replace />} />
-                ))}
-                <Route path="/admin/sync" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><SyncDashboard /></motion.div>} />
-                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
-                <Route path="/login" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><Login /></motion.div>} />
-                <Route path="/ai-hub" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><AiHub /></motion.div>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+              {LOCALE_PREFIXES.flatMap((lang) =>
+                APP_ROUTES.map((r) => (
+                  <Route
+                    key={`${lang}-${r.path}`}
+                    path={r.path === "/" ? `/${lang}` : `/${lang}${r.path}`}
+                    element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full">{r.element}</motion.div>}
+                  />
+                )),
+              )}
+              {REDIRECTS.map((r) => (
+                <Route key={`redir-${r.from}`} path={r.from} element={<Navigate to={r.to} replace />} />
+              ))}
+              <Route path="/admin/sync" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><SyncDashboard /></motion.div>} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+              <Route path="/login" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><Login /></motion.div>} />
+              <Route path="/ai-hub" element={<motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }} transition={{ duration: 0.3 }} className="w-full h-full"><AiHub /></motion.div>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
           </AnimatePresence>
-          {!isHubPreviewRoute && <ThemeBubble />}
-          {!isHubPreviewRoute && <Mobile3DSettingsToggle />}
-          {!isHubPreviewRoute && <CartDrawer />}
-          {!isHubPreviewRoute && <GoogleTranslate />}
+      {!isHubPreviewRoute && <ThemeBubble />}
+      {!isHubPreviewRoute && <Mobile3DSettingsToggle />}
+      {!isHubPreviewRoute && <CartDrawer />}
+      {!isHubPreviewRoute && <GoogleTranslate />}
         </CartProvider>
       </GamificationProvider>
     </PiPProvider>
