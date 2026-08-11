@@ -3,6 +3,7 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./index.css";
 import { initTilt3D } from "./lib/tilt3d";
+// ✨ Thème par défaut : Menthe Vibrant Cyber - Updated 2026-08-11
 import { initInteractivity } from "./lib/interactivity";
 
 initTilt3D();
