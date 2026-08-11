@@ -8,6 +8,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { PerformanceProvider } from "@/contexts/PerformanceContext";
 import { ThemeBubble } from "./components/ThemeBubble";
 import { CartProvider } from "./context/CartContext";
+// 🎨 Thème par défaut changé à "Menthe Vibrant Cyber"
 import { CartDrawer } from "./components/CartDrawer";
 import GoogleTranslate from "./components/GoogleTranslate";
 import { LocalizedHead } from "./components/LocalizedHead";
