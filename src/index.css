@@ -2890,20 +2890,24 @@ body,
   transform-origin: center !important;
 }
 
-/* Les menus des bulles s'ouvrent vers la droite pour éviter d'être coupés par le bord gauche */
+/* Les menus des bulles s'ouvrent à DROITE du panneau + du curseur d'ouverture,
+   bien espacés pour rester entièrement visibles et ne rien chevaucher */
 .floating-dock-slot .dock-popup {
-  position: absolute !important;
+  position: fixed !important;
   inset: auto !important;
   top: 50% !important;
-  left: 100% !important;
+  left: 170px !important;
+  right: auto !important;
+  bottom: auto !important;
   transform: translateY(-50%) !important;
-  margin: 0 0 0 0.5rem !important;
-  width: 280px !important;
-  max-width: calc(100vw - 90px) !important;
+  margin: 0 !important;
+  width: 300px !important;
+  max-width: calc(100vw - 200px) !important;
   max-height: 80vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   z-index: 10000 !important;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9) !important;
 }
 
 
@@ -3024,9 +3028,10 @@ body,
   }
 
   .floating-dock-slot .dock-popup {
-    width: min(300px, calc(100vw - 96px)) !important;
-    max-width: calc(100vw - 96px) !important;
-    margin-left: 0.6rem !important;
+    left: 150px !important;
+    width: min(290px, calc(100vw - 166px)) !important;
+    max-width: calc(100vw - 166px) !important;
+    margin: 0 !important;
   }
 }
 

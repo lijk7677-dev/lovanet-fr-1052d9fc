@@ -105,46 +105,23 @@ const RECENTS_KEY = "lovanet:theme-recents";
 const NAV_MODE_KEY = "lovanet:nav-theme-mode";
 const FLOATING_KEY = "lovanet:theme-panel-floating";
 // v3 key forces refresh from old overlapping positions
-const FLOATING_POSITION_KEY = "lovanet:theme-panel-pos-v4";
+const FLOATING_POSITION_KEY = "lovanet:theme-panel-pos-v3";
 const DEFAULT_THEME_ID = "mint-vibrant-cyber";
 
 const THEME_PANEL_W = 480;
 const VIEWPORT_MARGIN = 16;
 const SIDE_SAFE_OFFSET = 112;
 
-const getTriggerAnchor = (selector: string) => {
-  if (typeof document === "undefined") return null;
-  const trigger = document.querySelector(selector) as HTMLElement | null;
-  if (!trigger) return null;
-  return trigger.getBoundingClientRect();
-};
-
-const preferredRightAnchor = (width: number, selector?: string) => {
+const safeDefaultThemePos = () => {
   const w = window.innerWidth;
   const h = window.innerHeight;
-  const panelW = Math.min(width, Math.min(Math.round(w * 0.94), THEME_PANEL_W));
-  const triggerRect = selector ? getTriggerAnchor(selector) : null;
-
-  if (triggerRect) {
-    const gap = 12;
-    const x = triggerRect.right + gap;
-    const maxY = Math.max(VIEWPORT_MARGIN, h - 220);
-    const rawY = triggerRect.top + (triggerRect.height - 220) / 2;
-
-    return {
-      x: Math.min(Math.max(x, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, w - panelW - VIEWPORT_MARGIN)),
-      y: Math.min(Math.max(rawY, VIEWPORT_MARGIN), maxY),
-    };
-  }
-
-  const rightInset = w >= 1024 ? SIDE_SAFE_OFFSET : w < 600 ? 12 : 18;
+  const panelW = Math.min(Math.round(w * 0.94), THEME_PANEL_W);
+  const rightInset = w >= 1024 ? SIDE_SAFE_OFFSET : SIDE_SAFE_OFFSET + 12;
   return {
     x: Math.max(VIEWPORT_MARGIN, w - panelW - rightInset),
     y: w < 600 ? 20 : Math.max(VIEWPORT_MARGIN, Math.round(h * 0.05)),
   };
 };
-
-const safeDefaultThemePos = () => preferredRightAnchor(THEME_PANEL_W, "[data-testid='theme-bubble-toggle']");
 
 const clampThemePos = (x: number, y: number) => ({
   x: Math.min(Math.max(x, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, window.innerWidth - Math.min(window.innerWidth * 0.94, THEME_PANEL_W) - VIEWPORT_MARGIN)),
@@ -202,18 +179,6 @@ const getBottomBarRect = (): PanelRect => {
   return { x: 0, y: h - reserved, w, h: reserved };
 };
 
-const clampInsideViewport = (x: number, y: number, w: number, h: number) => {
-  const minX = VIEWPORT_MARGIN;
-  const minY = VIEWPORT_MARGIN;
-  const maxX = Math.max(minX, window.innerWidth - w - minX);
-  const maxY = Math.max(minY, window.innerHeight - h - minY);
-
-  return {
-    x: Math.min(Math.max(x, minX), maxX),
-    y: Math.min(Math.max(y, minY), maxY),
-  };
-};
-
 const resolveNonOverlapping = (id: string, x: number, y: number, w: number, h: number) => {
   const gap = 12;
   const blockers: PanelRect[] = [
@@ -224,32 +189,36 @@ const resolveNonOverlapping = (id: string, x: number, y: number, w: number, h: n
       .sort(([left], [right]) => getPriority(right) - getPriority(left))
       .map(([, rect]) => rect),
   ];
-
   let rect = { x, y, w, h };
-  rect = { ...rect, ...clampInsideViewport(rect.x, rect.y, rect.w, rect.h) };
 
-  for (let i = 0; i < 12; i += 1) {
+  rect.x = Math.min(Math.max(rect.x, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, window.innerWidth - rect.w - VIEWPORT_MARGIN));
+  rect.y = Math.min(Math.max(rect.y, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, window.innerHeight - rect.h - VIEWPORT_MARGIN));
+
+  for (let i = 0; i < 8; i += 1) {
     const hit = blockers.find((b) => overlaps(rect, b));
     if (!hit) break;
 
-    const candidates = [
-      { x: hit.x + hit.w + gap, y: rect.y },
-      { x: hit.x - rect.w - gap, y: rect.y },
-      { x: rect.x, y: hit.y + hit.h + gap },
-      { x: rect.x, y: hit.y - rect.h - gap },
-      { x: Math.max(VIEWPORT_MARGIN, window.innerWidth - rect.w - VIEWPORT_MARGIN), y: rect.y },
-      { x: VIEWPORT_MARGIN, y: rect.y },
-      { x: rect.x, y: Math.max(VIEWPORT_MARGIN, window.innerHeight - rect.h - VIEWPORT_MARGIN) },
-      { x: rect.x, y: VIEWPORT_MARGIN },
-    ].map((candidate) => {
-      const clamped = clampInsideViewport(candidate.x, candidate.y, rect.w, rect.h);
-      return { x: clamped.x, y: clamped.y, w: rect.w, h: rect.h };
-    });
+    let nextX = hit.x - rect.w - gap;
+    if (nextX < VIEWPORT_MARGIN) {
+      nextX = hit.x + hit.w + gap;
+    }
+    if (nextX > window.innerWidth - rect.w - VIEWPORT_MARGIN) {
+      nextX = rect.x;
+    }
 
-    const fallback = clampInsideViewport(rect.x, rect.y, rect.w, rect.h);
-    const nextRect = candidates.find((candidate) => !blockers.some((blocker) => overlaps(candidate, blocker)))
-      ?? { x: fallback.x, y: fallback.y, w: rect.w, h: rect.h };
-    rect = { ...rect, x: nextRect.x, y: nextRect.y };
+    let nextY = rect.y;
+    if (nextX === rect.x) {
+      nextY = hit.y + hit.h + gap;
+      if (nextY > window.innerHeight - rect.h - VIEWPORT_MARGIN) {
+        nextY = Math.max(VIEWPORT_MARGIN, hit.y - rect.h - gap);
+      }
+    }
+
+    rect = {
+      ...rect,
+      x: Math.min(Math.max(nextX, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, window.innerWidth - rect.w - VIEWPORT_MARGIN)),
+      y: Math.min(Math.max(nextY, VIEWPORT_MARGIN), Math.max(VIEWPORT_MARGIN, window.innerHeight - rect.h - VIEWPORT_MARGIN)),
+    };
   }
 
   return { x: rect.x, y: rect.y };
@@ -996,22 +965,22 @@ export const ThemeBubble = () => {
     <div
       ref={panelRef}
       className={cn(
-        "flex flex-col overflow-hidden text-white",
-        floating ? "fixed z-[10050] h-auto w-[min(94vw,480px)] max-w-[calc(100vw-24px)] max-h-[88vh] rounded-[30px] border border-white/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.76),rgba(15,23,42,0.9))] shadow-[0_32px_90px_rgba(15,23,42,0.58)] ring-1 ring-white/10 backdrop-blur-2xl" : "h-full rounded-[26px] border border-white/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.72),rgba(15,23,42,0.86))] shadow-[0_20px_60px_rgba(15,23,42,0.32)]"
+        "flex flex-col overflow-hidden rounded-[2rem] border border-white/40 bg-white/20 text-white shadow-[0_20px_56px_rgba(0,0,0,0.3)] backdrop-blur-2xl",
+        floating ? "fixed z-[10050] h-auto w-[min(94vw,480px)] max-h-[88vh]" : "h-full"
       )}
-      style={floating && panelPosition ? { left: `${panelPosition.x}px`, top: `${panelPosition.y}px`, boxSizing: "border-box" } : { boxSizing: "border-box" }}
+      style={floating && panelPosition ? { left: `${panelPosition.x}px`, top: `${panelPosition.y}px` } : undefined}
       data-testid="theme-bubble-panel"
     >
-      <div className="relative flex h-full flex-col before:absolute before:inset-x-4 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/50 before:to-transparent">
-        <div className="border-b border-white/10 bg-white/[0.02] px-4 pb-3 pt-4 md:px-5">
+      <div className="relative flex h-full flex-col">
+        <div className="border-b border-white/20 px-4 pb-3 pt-4 md:px-5">
           <div
-            className={cn("mb-2 flex select-none items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-2.5 py-2", floating && "cursor-grab")}
+            className={cn("mb-2 flex select-none items-center justify-between gap-2", floating && "cursor-grab")}
             onPointerDown={(e) => { if (!(e.target as Element).closest("button")) handleDragStart(e); }}
             onPointerMove={handleDragMove}
             onPointerUp={handleDragEnd}
             onPointerCancel={handleDragEnd}
           >
-            <div className="inline-flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-white/75">
+            <div className="inline-flex items-center gap-1 rounded-full px-1 text-[10px] uppercase tracking-[0.25em] text-white/70">
               <Move className="h-3.5 w-3.5" />
               Panneau thèmes
             </div>
@@ -1023,8 +992,8 @@ export const ThemeBubble = () => {
                 className={cn(
                   "inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors",
                   floating
-                    ? "border-white/20 bg-white/10 text-white"
-                    : "border-white/15 bg-white/5 text-white/80 hover:bg-white/15"
+                    ? "border-white/40 bg-white/20 text-white"
+                    : "border-white/20 bg-white/5 text-white/80 hover:bg-white/15"
                 )}
               >
                 <Move className="h-4 w-4" />
@@ -1033,14 +1002,14 @@ export const ThemeBubble = () => {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Fermer le panneau des thèmes"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/90 transition-colors hover:bg-white/20"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
           </div>
           <div className="mb-3 flex items-start justify-between gap-3">
-            <div className="inline-flex h-8 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 text-[11px] font-medium text-white/90">
+            <div className="inline-flex h-8 items-center gap-2 rounded-full px-3 text-[11px] font-medium text-white/90 bg-white/10 border border-white/20">
               <Sparkles className="h-3.5 w-3.5" style={{ color: activeTheme.primaryHex }} />
               <span data-testid="theme-active-label" className="max-w-[120px] truncate">{activeTheme.label}</span>
             </div>
@@ -1061,7 +1030,7 @@ export const ThemeBubble = () => {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Rechercher un style..."
-              className="h-10 rounded-xl border border-white/10 bg-white/5 pl-9 pr-4 text-[13px] text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20"
+              className="h-10 rounded-xl bg-white/5 border-white/10 pl-9 pr-4 text-[13px] text-white placeholder:text-white/30 focus-visible:ring-1 focus-visible:ring-white/20"
               data-testid="theme-search-input"
             />
           </div>
@@ -1192,15 +1161,13 @@ export const ThemeBubble = () => {
       <Button
         type="button"
         onClick={() => {
-          const width = panelRef.current?.offsetWidth || Math.min(Math.round(window.innerWidth * 0.94), THEME_PANEL_W);
-          const base = preferredRightAnchor(width, "[data-testid='theme-bubble-toggle']");
+          const base = panelPosition ?? safeDefaultThemePos();
           const resolved = placePanel(base);
           setPanelPosition(resolved);
           setOpen(true);
         }}
         aria-label="Ouvrir le sélecteur de thèmes"
         data-testid="theme-bubble-toggle"
-        data-floating-trigger="theme"
         className="theme-orb-button fixed bottom-4 left-3 z-[9999] h-[52px] w-[52px] rounded-full p-0 shadow-[0_0_20px_rgba(var(--theme-primary-rgb),0.4)] sm:left-4 md:bottom-6 md:left-6 md:h-16 md:w-16"
       >
         <span className="theme-orb-halo" aria-hidden="true" />

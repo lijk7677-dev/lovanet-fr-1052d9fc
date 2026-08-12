@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Video, VideoOff, Check } from "lucide-react";
 import { usePerformance } from "@/contexts/PerformanceContext";
 
@@ -107,9 +107,6 @@ export function Mobile3DSettingsToggle() {
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 1024 : false,
   );
-  const [panelPos, setPanelPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(activeDecors)); } catch {}
@@ -172,44 +169,7 @@ export function Mobile3DSettingsToggle() {
 
   const anyOff = !decorOverlayEnabled || disableVideos;
   const buttonRight = isDesktop ? 24 : 14;
-
-  const getPanelPosition = () => {
-    const trigger = triggerRef.current;
-    const panelWidth = panelRef.current?.offsetWidth || (isDesktop ? 320 : Math.min(window.innerWidth - 24, 320));
-    const panelHeight = panelRef.current?.offsetHeight || (isDesktop ? 450 : 520);
-    const margin = 12;
-
-    if (!trigger) {
-      return {
-        x: Math.max(margin, window.innerWidth - panelWidth - margin),
-        y: Math.max(margin, Math.min(window.innerHeight * 0.22, window.innerHeight - panelHeight - margin)),
-      };
-    }
-
-    const rect = trigger.getBoundingClientRect();
-    let x = rect.right + 12;
-    let y = rect.top + (rect.height - panelHeight) / 2;
-
-    const maxX = Math.max(margin, window.innerWidth - panelWidth - margin);
-    const maxY = Math.max(margin, window.innerHeight - panelHeight - margin);
-
-    x = Math.min(Math.max(x, margin), maxX);
-    y = Math.min(Math.max(y, margin), maxY);
-
-    return { x, y };
-  };
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const syncPosition = () => setPanelPos(getPanelPosition());
-    syncPosition();
-    window.addEventListener("resize", syncPosition);
-    window.addEventListener("scroll", syncPosition, true);
-    return () => {
-      window.removeEventListener("resize", syncPosition);
-      window.removeEventListener("scroll", syncPosition, true);
-    };
-  }, [isOpen, isDesktop]);
+  const panelBottom = isDesktop ? 170 : 220;
 
   return (
     <>
@@ -219,17 +179,8 @@ export function Mobile3DSettingsToggle() {
       `}</style>
       {/* Main orb button */}
       <button
-        ref={triggerRef}
         type="button"
-        onClick={() => {
-          setIsOpen((v) => {
-            const next = !v;
-            if (next) {
-              setPanelPos(getPanelPosition());
-            }
-            return next;
-          });
-        }}
+        onClick={() => setIsOpen((v) => !v)}
         aria-label="Arrière-plans et décors"
         style={{
           position: "fixed",
@@ -253,21 +204,19 @@ export function Mobile3DSettingsToggle() {
 
       {/* Panel — independently centered on screen */}
       {isOpen && (
-        <div
-          ref={panelRef}
-          style={{
-            position: "fixed",
-            left: `${panelPos.x}px`,
-            top: `${panelPos.y}px`,
-            zIndex: 10050,
-            background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.40)",
-            borderRadius: 20, padding: "12px 12px 10px",
-            width: isDesktop ? 320 : "min(86vw, 320px)",
-            maxHeight: "min(78vh, 620px)",
-            backdropFilter: "blur(22px) saturate(1.14)", boxShadow: "0 20px 56px rgba(0,0,0,0.3)",
-            display: "flex", flexDirection: "column", gap: 10,
-          }}
-        >
+        <div style={{
+          position: "fixed",
+          bottom: panelBottom,
+          right: isDesktop ? 96 : 86,
+          left: "auto",
+          zIndex: 10050,
+          background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.40)",
+          borderRadius: 20, padding: "12px 12px 10px",
+          width: isDesktop ? 320 : "min(86vw, 320px)",
+          maxHeight: "min(78vh, 620px)",
+          backdropFilter: "blur(22px) saturate(1.14)", boxShadow: "0 20px 56px rgba(0,0,0,0.3)",
+          display: "flex", flexDirection: "column", gap: 10,
+        }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {/* Tabs */}
             <div style={{ display: "flex", gap: 5 }}>

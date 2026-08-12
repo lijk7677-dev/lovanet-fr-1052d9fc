@@ -3,7 +3,7 @@ import { buildYouTubeEmbedUrl } from "@/lib/youtubeEmbed";
 import { Palette, ChevronDown, Sparkles, Award, Zap, Heart, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import NeonFooterBar from "@/components/NeonFooterBar";
-import { PageShell } from "@/components/PageShell";
+import { Navbar } from "@/components/Navbar";
 import YoutubeBrandCover from "@/components/YoutubeBrandCover";
 import TopVideoBanner from "@/components/TopVideoBanner";
 
@@ -217,12 +217,14 @@ export default function AnimeCountdown() {
   }, [rewards]);
 
   return (
-    <PageShell>
-      <main
-        className="min-h-screen pb-20 relative overflow-hidden transition-colors"
-        style={{ backgroundColor: theme.bg, color: theme.text }}
-      >
-        {/* Premium Animated Banner with Videos & Decorations */}
+    <main
+      className="min-h-screen pb-20 relative overflow-hidden transition-colors"
+      style={{ backgroundColor: theme.bg, color: theme.text }}
+    >
+      <Navbar />
+      <div className="h-12" />
+
+      {/* Premium Animated Banner with Videos & Decorations */}
       <div 
         className="relative overflow-hidden"
         style={{
@@ -622,7 +624,6 @@ export default function AnimeCountdown() {
       </section>
 
       <NeonFooterBar />
-      </main>
-    </PageShell>
+    </main>
   );
 }

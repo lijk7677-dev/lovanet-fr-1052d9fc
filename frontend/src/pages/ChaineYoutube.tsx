@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { videos as fallbackVideos, thumb as ytThumb } from "@/data/videos";
 import { IMPORTED_VIDEOS } from "@/data/importedVideos";
-import VideoWithFallback from "@/components/VideoWithFallback";
 import {
   Youtube,
   ExternalLink,
@@ -141,29 +140,6 @@ const ChaineYoutube = () => {
           return !unavailable.has(id) && status !== "unavailable" && status !== "hidden";
         });
         if (alive) setChannelItems(live);
-
-        // If Supabase returned nothing, fall back to backend /api/videos
-        if (alive && (!live || live.length === 0)) {
-          try {
-            const res = await fetch(`${API}/videos?limit=500`);
-            if (res.ok) {
-              const json = await res.json();
-              const vids = (json?.videos || []).map((v: any) => ({
-                id: v.external_id || v.id,
-                external_id: v.external_id || v.id,
-                title: v.title || v.name || "Anime Moments officiel",
-                thumbnail_url: v.thumbnail_url || v.thumbnail || ytThumb(v.external_id || v.id),
-                video_url: v.video_url || v.videoUrl || `https://www.youtube.com/watch?v=${v.external_id || v.id}`,
-                published_at: v.published_at || v.publishedAt || null,
-                episode: v.episode ?? null,
-                origin: "channel",
-              }));
-              if (alive && vids.length > 0) setChannelItems(vids);
-            }
-          } catch (e) {
-            // ignore fallback failure
-          }
-        }
       } catch {
         if (alive) setChannelItems([]);
       } finally {
@@ -268,60 +244,23 @@ const ChaineYoutube = () => {
     };
   }, []);
 
-  const fallbackChannel: VideoRow[] = useMemo(() => {
-    // Merge local fallback list with imported videos (youtube source) to rebuild
-    // a larger offline catalog when Supabase is not available in production.
-    const base = [...fallbackVideos].filter((v) => isAllowedYouTubeVideo(v.id, v.title));
-    const imported = IMPORTED_VIDEOS.filter((v) => v.source === "youtube").map((v) => ({
-      id: v.external_id,
-      external_id: v.external_id,
-      title: v.title,
-      thumbnail_url: v.thumbnail_url || ytThumb(v.external_id),
-      video_url: v.video_url || `https://www.youtube.com/watch?v=${v.external_id}`,
-      published_at: v.published_at ?? null,
-      episode: v.episode ?? null,
-      origin: "channel" as VideoOrigin,
-    }));
-
-    const merged = [...base.map((v) => ({
-      id: v.id,
-      external_id: v.id,
-      title: v.title,
-      thumbnail_url: ytThumb(v.id),
-      video_url: `https://www.youtube.com/watch?v=${v.id}`,
-      published_at: v.date ?? null,
-      episode: v.episode ?? null,
-      origin: "channel" as VideoOrigin,
-    })), ...imported].filter((item) => {
-      // Exclude items known to be unavailable/hidden to avoid reintroducing removed videos
-      try {
-        const status = getVideoStatusSync(item.external_id || item.id);
-        return status !== 'unavailable' && status !== 'hidden';
-      } catch {
-        return true;
-      }
-    });
-
-    // Ensure a minimum visible catalogue size (pad by repeating items) to
-    // approximate the previous "110 trailers" catalog when backend is empty.
-    const target = 110;
-    const out: VideoRow[] = [];
-    for (let i = 0; out.length < target && i < merged.length * 5; i++) {
-      const item = merged[i % merged.length];
-      if (!item) break;
-      // Skip repeats if item is known unavailable/hidden
-      try {
-        const status = getVideoStatusSync(item.external_id || item.id);
-        if (status === 'unavailable' || status === 'hidden') continue;
-      } catch {}
-      // create a stable id by appending an index when repeating
-      out.push({ ...item, id: `${item.id}-p${Math.floor(i / merged.length)}` });
-    }
-
-    // If merged list was already large enough, use deduped merged list
-    if (merged.length >= target) return merged.slice(0, Math.max(target, merged.length));
-    return out.length ? out : merged;
-  }, []);
+  const fallbackChannel: VideoRow[] = useMemo(
+    () =>
+      [...fallbackVideos]
+        .filter((v) => isAllowedYouTubeVideo(v.id, v.title))
+        .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
+        .map((v): VideoRow => ({
+          id: v.id,
+          external_id: v.id,
+          title: v.title,
+          thumbnail_url: ytThumb(v.id),
+          video_url: `https://www.youtube.com/watch?v=${v.id}`,
+          published_at: v.date ?? null,
+          episode: v.episode ?? null,
+          origin: "channel",
+        })),
+    [],
+  );
 
   const officialList = loaded && channelItems.length > 0 ? channelItems : fallbackChannel;
 
@@ -380,7 +319,7 @@ const ChaineYoutube = () => {
       <ManualSyncButton platform="youtube" label="Sync YouTube" onDone={() => setRefreshToken((v) => v + 1)} />
       <section className="container mx-auto px-4 lg:px-8 pt-6" data-testid="youtube-top-video-banner">
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_28px_90px_-42px_rgba(56,189,248,0.6)] h-[260px] sm:h-[320px]">
-          <VideoWithFallback
+          <video
             src={YOUTUBE_BANNER_VIDEO}
             className="absolute inset-0 h-full w-full object-cover"
             autoPlay
@@ -389,7 +328,6 @@ const ChaineYoutube = () => {
             playsInline
             preload="metadata"
             data-bg-video
-            seed="youtube-banner"
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(2,6,23,0.85)_0%,transparent_24%,transparent_76%,rgba(2,6,23,0.9)_100%)]" />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(2,6,23,0.65)_0%,transparent_18%,transparent_82%,rgba(2,6,23,0.65)_100%)]" />

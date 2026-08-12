@@ -1,22 +1,26 @@
-# Here are your Instructions
+# 33
 
-## Sauvegardes rapides LOVABLE
+futuriste musical vente
 
-Deux scripts de sauvegarde/restauration sont fournis pour l'app LOVABLE :
+This project was built with [Lovable](https://lovable.dev).
 
-- `create-lovable-backup.sh` : crée un répertoire `backups/lovable-YYYYMMDD-HHMMSS/` contenant `lovable.tar.gz`, `git-head.txt` et `git-status.txt`.
-- `restore-lovable-backup.sh` : restaure une archive produite par le script de création.
+**Live app**: https://animemomentsofficiel-fr.lovable.app
 
-Exemples :
+## Build with Lovable
 
-```bash
-# sauvegarde (par défaut utilise /app/lovable, ou passez un chemin)
-./create-lovable-backup.sh /app/lovable
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/32caf520-24c5-48d7-b1dd-2f29c09b7ada).
 
-# restauration
-./restore-lovable-backup.sh backups/lovable-20260810-123456/lovable.tar.gz /app
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `conflict_290726_1841` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+```sh
+git clone <this-repository-url>
+cd <repository-name>
+npm i
+npm run dev
 ```
-
-Le script `git-update-stabilizer.sh` appelle désormais `create-lovable-backup.sh` en début d'exécution (best-effort) pour garantir qu'une sauvegarde est prise avant la stabilisation/déploiement.
-
-Si tu veux que la sauvegarde soit obligatoire (bloquante) avant toute mise à jour, dis-le moi et je modifie le comportement.

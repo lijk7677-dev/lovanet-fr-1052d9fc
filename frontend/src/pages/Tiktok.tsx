@@ -3,6 +3,7 @@ import { PageShell } from "@/components/PageShell";
 import { Music2, Heart, MessageCircle, Share2, ArrowUp, ArrowDown, ExternalLink, VolumeX, Volume2, Sparkles, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminRemoveVideo } from "@/components/AdminRemoveVideo";
+import { ManualSyncButton } from "@/components/ManualSyncButton";
 import { GDriveCinematicBanner } from "@/components/GDriveCinematicBanner";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
@@ -187,6 +188,7 @@ const Tiktok = () => {
 
   return (
     <PageShell>
+      <ManualSyncButton platform="tiktok" label="Sync TikTok" onDone={() => window.location.reload()} />
       <GDriveCinematicBanner
         title="Bannière TikTok — Anime Moments"
         src={TIKTOK_BANNER_VIDEO}
