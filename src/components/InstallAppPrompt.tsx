@@ -89,11 +89,11 @@ export const InstallAppPrompt = () => {
         </button>
 
         <img
-          src="/lovanet-icon-512.png?v=4"
+          src="/lovanet-icon-512.png?v=5"
           alt="Logo Lovanet"
-          width={128}
-          height={128}
-          className="mx-auto h-28 w-28 rounded-3xl object-contain shadow-lg"
+          width={160}
+          height={160}
+          className="mx-auto h-36 w-36 rounded-[2rem] object-contain shadow-xl sm:h-40 sm:w-40"
         />
 
         <h2 className="mt-5 text-2xl font-bold tracking-tight">Installer Lovanet</h2>

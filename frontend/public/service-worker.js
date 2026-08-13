@@ -1,13 +1,21 @@
 // Ce fichier va gérer l'interception et la mise en cache (PWA Hors-ligne)
 // Il est conçu pour être enregistré dans index.tsx
 
-const CACHE_NAME = 'lovanet-offline-v1';
+const CACHE_NAME = 'lovanet-offline-v2';
 
 // Fichiers statiques vitaux à mettre en cache immédiatement
 const PRECACHE_URLS = [
   '/',
   '/index.html',
   '/static/js/bundle.js',
+  '/favicon.png',
+  '/lovanet-icon-16.png',
+  '/lovanet-icon-32.png',
+  '/lovanet-icon-48.png',
+  '/lovanet-icon-64.png',
+  '/lovanet-icon-180.png',
+  '/lovanet-icon-192.png',
+  '/lovanet-icon-512.png',
   '/lovanet-logo-custom.png',
   '/lovanet-og.svg',
 ];
