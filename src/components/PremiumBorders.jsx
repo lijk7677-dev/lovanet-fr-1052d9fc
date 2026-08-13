@@ -49,10 +49,8 @@ const resolveGoogleDriveVideoSource = (input) => {
 
 const OVERLAY_BACKGROUND_VIDEOS = [
   {
-    id: "drive-1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW",
-    src: resolveGoogleDriveVideoSource(
-      "https://drive.google.com/file/d/1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW/view?usp=sharing",
-    ),
+    id: "drive-bg",
+    src: "/drive-bg.mp4",
   },
   { id: "hero-extra-1W0eh", src: "/hero-banner-extra-1W0eh.mp4" },
   { id: "overlay-1dp9", src: "/overlay-1dp9.mp4" },

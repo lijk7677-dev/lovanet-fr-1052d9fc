@@ -101,7 +101,7 @@ const catalogBatchSize = 12;
 const catalogRowSize = 6;
 // Home banners: index 0 -> Hero, index 1 -> Portal card 1, index 2 -> Portal card 2.
 const DEFAULT_HOME_BANNERS = [
-  { id: "b1", src: "https://drive.google.com/uc?export=download&id=1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW", label: "Bannière hero (haut)" },
+  { id: "b1", src: "/drive-bg.mp4", label: "Bannière hero (haut)" },
   { id: "b2", src: "", label: "Carte du haut" },
   { id: "b3", src: "", label: "Carte Prime & vidéos (bas)" },
 ];
@@ -277,6 +277,23 @@ export default function RootLandingPage() {
       playPromise.catch(() => {});
     }
   }, [heroBanner?.id, heroBanner?.visible]);
+
+  useEffect(() => {
+    document.body.removeAttribute("data-hide-videos");
+    const nodes = document.querySelectorAll("video[data-bg-video], video.hero-banner-video");
+    nodes.forEach((node) => {
+      const video = node as HTMLVideoElement;
+      try {
+        video.muted = true;
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+          playPromise.catch(() => {});
+        }
+      } catch (error) {
+        // ignore autoplay issues
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
