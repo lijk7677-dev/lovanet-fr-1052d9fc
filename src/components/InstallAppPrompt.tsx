@@ -8,6 +8,9 @@ type BIPEvent = Event & {
 
 const DISMISS_UNTIL_KEY = "lovanet.install.dismissedUntil.v2";
 const DISMISS_COOLDOWN_MS = 12 * 60 * 60 * 1000;
+const AUTO_OPEN_DELAY_MS = 2400;
+
+type DeviceClass = "ios" | "tablet" | "desktop" | "mobile";
 
 const isStandalone = () =>
   window.matchMedia("(display-mode: standalone)").matches ||
@@ -26,16 +29,38 @@ const canShowPrompt = () => {
   }
 };
 
+const detectDeviceClass = (): DeviceClass => {
+  const ua = navigator.userAgent;
+  const width = window.innerWidth;
+  const isIos = /iPad|iPhone|iPod/.test(ua) && !/CriOS|FxiOS/.test(ua);
+  if (isIos) return "ios";
+
+  const isTabletUA = /iPad|Tablet|PlayBook|Silk|Kindle|Nexus 7|Nexus 9|SM-T|Tab/i.test(ua);
+  const isTabletByWidth = width >= 768 && width <= 1180 && /Android|Macintosh|Windows/i.test(ua);
+  if (isTabletUA || isTabletByWidth) return "tablet";
+
+  if (width >= 1024) return "desktop";
+  return "mobile";
+};
+
 export const InstallAppPrompt = () => {
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   const [open, setOpen] = useState(false);
   const [iosHint, setIosHint] = useState(false);
+  const [deviceClass, setDeviceClass] = useState<DeviceClass>("mobile");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.self !== window.top) return; // never inside preview iframe
     if (isStandalone()) return;
     if (!canShowPrompt()) return;
+
+    setDeviceClass(detectDeviceClass());
+
+    // Auto open for non-installed visitors on every platform.
+    const autoTimer = window.setTimeout(() => {
+      setOpen(true);
+    }, AUTO_OPEN_DELAY_MS);
 
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -65,6 +90,7 @@ export const InstallAppPrompt = () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
       if (timer) window.clearTimeout(timer);
+      window.clearTimeout(autoTimer);
     };
   }, []);
 
@@ -85,6 +111,24 @@ export const InstallAppPrompt = () => {
   };
 
   if (!open) return null;
+
+  const instructionText =
+    deviceClass === "ios"
+      ? "Appuyez sur Partager, puis « Sur l'ecran d'accueil »"
+      : deviceClass === "tablet"
+        ? "Sur tablette, utilisez l'option « Installer l'application » dans le menu du navigateur si le bouton direct n'apparait pas."
+        : deviceClass === "desktop"
+          ? "Sur PC, utilisez l'icone d'installation dans la barre d'adresse ou le menu du navigateur."
+          : "Sur mobile Android, l'installation directe s'active automatiquement quand le navigateur la propose.";
+
+  const audienceLabel =
+    deviceClass === "ios"
+      ? "Version iOS"
+      : deviceClass === "tablet"
+        ? "Version Tablette"
+        : deviceClass === "desktop"
+          ? "Version PC"
+          : "Version Mobile";
 
   return (
     <div
@@ -121,6 +165,9 @@ export const InstallAppPrompt = () => {
         <p className="mt-1 text-[12px] text-slate-500 sm:text-xs">
           Version installable optimisee pour une navigation mobile plus fluide.
         </p>
+        <p className="mt-1 inline-flex rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-600">
+          {audienceLabel}
+        </p>
 
         {iosHint && !deferred ? (
           <p className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
@@ -137,7 +184,7 @@ export const InstallAppPrompt = () => {
           </button>
         ) : (
           <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-            Préparation de l'installation en cours...
+            {instructionText}
           </p>
         )}
 
