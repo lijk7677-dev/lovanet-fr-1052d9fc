@@ -21,6 +21,14 @@ type LocalClip = {
 
 const LOCAL_CLIPS: LocalClip[] = [
   {
+    id: "hero-extra-1W0eh",
+    title: "Bannière principale",
+    src: "/hero-banner-extra-1W0eh.mp4",
+    poster: crystalCity.url,
+    vibe: "cinema",
+    note: "Bannière vidéo principale",
+  },
+  {
     id: "studio-cinema",
     title: "Studio Cinema Atmosphere",
     src: "/catalogue-banner.mp4",
@@ -43,14 +51,6 @@ const LOCAL_CLIPS: LocalClip[] = [
     poster: lovanetLogo.url,
     vibe: "night-city",
     note: "Ambiance urbaine premium",
-  },
-  {
-    id: "collector-cut",
-    title: "Collector Cut Showcase",
-    src: "/custom_video_lovanet.mp4",
-    poster: crystalCity.url,
-    vibe: "cinema",
-    note: "Cut exclusif local",
   },
 ];
 

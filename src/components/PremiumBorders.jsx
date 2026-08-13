@@ -40,22 +40,12 @@ const Cloud = ({ delay, y, duration, scale }) => (
   />
 );
 
-const shuffleArray = (list) => {
-  const clone = [...list];
-  for (let index = clone.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [clone[index], clone[swapIndex]] = [clone[swapIndex], clone[index]];
-  }
-  return clone;
-};
-
 const OVERLAY_BACKGROUND_VIDEOS = [
+  { id: "hero-extra-1W0eh", src: "/hero-banner-extra-1W0eh.mp4" },
   { id: "overlay-1dp9", src: "/overlay-1dp9.mp4" },
-  { id: "overlay-1nCx", src: "/overlay-1nCx.mp4" },
-  { id: "overlay-1slx", src: "/overlay-1slx.mp4" },
-  { id: "overlay-1836", src: "/overlay-1836.mp4" },
-  { id: "overlay-1Hb1", src: "/overlay-1Hb1.mp4" },
 ];
+
+const ORDERED_OVERLAY_VIDEO_IDS = OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id);
 
 export const PremiumBorders = () => {
   const [hidden, setHidden] = useState(() => document.body.hasAttribute("data-hide-decors"));
@@ -74,9 +64,8 @@ export const PremiumBorders = () => {
   const activeOverlayVideo = OVERLAY_BACKGROUND_VIDEOS.find((video) => video.id === activeOverlayVideoId) || OVERLAY_BACKGROUND_VIDEOS[0];
 
   useEffect(() => {
-    const initialQueue = shuffleArray(OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id));
-    setOverlayQueue(initialQueue);
-    setActiveOverlayVideoId(initialQueue[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
+    setOverlayQueue(ORDERED_OVERLAY_VIDEO_IDS);
+    setActiveOverlayVideoId(ORDERED_OVERLAY_VIDEO_IDS[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
   }, []);
 
   useEffect(() => {
@@ -149,9 +138,8 @@ export const PremiumBorders = () => {
           setOverlayQueue((currentQueue) => {
             const nextQueue = currentQueue.slice(1);
             if (!nextQueue.length) {
-              const resetQueue = shuffleArray(OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id));
-              setActiveOverlayVideoId(resetQueue[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
-              return resetQueue;
+              setActiveOverlayVideoId(ORDERED_OVERLAY_VIDEO_IDS[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
+              return ORDERED_OVERLAY_VIDEO_IDS;
             }
             setActiveOverlayVideoId(nextQueue[0]);
             return nextQueue;
@@ -161,9 +149,8 @@ export const PremiumBorders = () => {
           setOverlayQueue((currentQueue) => {
             const nextQueue = currentQueue.slice(1);
             if (!nextQueue.length) {
-              const resetQueue = shuffleArray(OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id));
-              setActiveOverlayVideoId(resetQueue[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
-              return resetQueue;
+              setActiveOverlayVideoId(ORDERED_OVERLAY_VIDEO_IDS[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
+              return ORDERED_OVERLAY_VIDEO_IDS;
             }
             setActiveOverlayVideoId(nextQueue[0]);
             return nextQueue;
