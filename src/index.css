@@ -2935,6 +2935,38 @@ body,
   background: rgba(255, 255, 255, 0.14);
 }
 
+/* Rebuilt sub-panels for the three problematic dock bubbles.
+   They are portalled under body and therefore cannot inherit dock transforms,
+   clipping, scaling or stacking contexts. */
+.detached-bubble-panel {
+  position: fixed;
+  z-index: 10060;
+  top: 50%;
+  left: clamp(180px, 14vw, 260px);
+  width: min(340px, calc(100vw - clamp(212px, 17vw, 300px)));
+  max-height: min(78vh, 620px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  border-radius: 20px;
+  background: rgba(10, 18, 22, 0.78);
+  color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 24px 70px -20px rgba(0, 0, 0, 0.9), 0 0 26px rgba(0, 255, 157, 0.12);
+  backdrop-filter: blur(24px) saturate(1.15);
+  -webkit-backdrop-filter: blur(24px) saturate(1.15);
+  animation: detached-panel-enter 180ms ease-out both;
+}
+
+.detached-bubble-panel--compact { width: min(290px, calc(100vw - clamp(212px, 17vw, 300px))); }
+.detached-bubble-panel--catalog { width: min(340px, calc(100vw - clamp(212px, 17vw, 300px))); }
+.detached-bubble-panel--settings { width: min(320px, calc(100vw - clamp(212px, 17vw, 300px))); }
+
+@keyframes detached-panel-enter {
+  from { opacity: 0; transform: translate(12px, -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+
 /* ---- Bulle 3D neutre (couleur des cartes catalogue) ---- */
 .catalog-color-orb {
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -3032,6 +3064,16 @@ body,
     width: min(290px, calc(100vw - 166px)) !important;
     max-width: calc(100vw - 166px) !important;
     margin: 0 !important;
+  }
+
+  .detached-bubble-panel,
+  .detached-bubble-panel--compact,
+  .detached-bubble-panel--catalog,
+  .detached-bubble-panel--settings {
+    left: 118px;
+    width: calc(100vw - 134px);
+    max-width: 340px;
+    max-height: 72vh;
   }
 }
 

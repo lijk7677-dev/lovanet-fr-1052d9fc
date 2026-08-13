@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, Video, VideoOff, Check } from "lucide-react";
 import { usePerformance } from "@/contexts/PerformanceContext";
+import { DetachedBubblePanel } from "@/components/DetachedBubblePanel";
 
 const DECOR_GROUPS = [
   { group: "marine", label: "🌊 Océan", emoji: "🌊", color: "#38bdf8", items: [
@@ -202,21 +203,13 @@ export function Mobile3DSettingsToggle() {
         <OrbIcon anyOff={anyOff} />
       </button>
 
-      {/* Panel — independently centered on screen */}
-      {isOpen && (
-        <div style={{
-          position: "fixed",
-          bottom: panelBottom,
-          right: isDesktop ? 96 : 86,
-          left: "auto",
-          zIndex: 10050,
-          background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.40)",
-          borderRadius: 20, padding: "12px 12px 10px",
-          width: isDesktop ? 320 : "min(86vw, 320px)",
-          maxHeight: "min(78vh, 620px)",
-          backdropFilter: "blur(22px) saturate(1.14)", boxShadow: "0 20px 56px rgba(0,0,0,0.3)",
-          display: "flex", flexDirection: "column", gap: 10,
-        }}>
+      <DetachedBubblePanel
+        panelId="visual-settings"
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="detached-bubble-panel--settings"
+      >
+        <div style={{ padding: "12px 12px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {/* Tabs */}
             <div style={{ display: "flex", gap: 5 }}>
@@ -360,7 +353,7 @@ export function Mobile3DSettingsToggle() {
             )}
           </div>
         </div>
-      )}
+      </DetachedBubblePanel>
     </>
   );
 }
