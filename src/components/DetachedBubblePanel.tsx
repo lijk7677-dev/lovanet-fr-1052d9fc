@@ -1,5 +1,6 @@
 import { ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const OPEN_PANEL_EVENT = "lovanet:detached-bubble-panel-open";
@@ -42,11 +43,19 @@ export function DetachedBubblePanel({
 
   return createPortal(
     <section
-      className={cn("detached-bubble-panel", className)}
+      className={cn("detached-bubble-panel relative", className)}
       data-bubble-panel={panelId}
       role="dialog"
       aria-modal="false"
     >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Fermer le panneau"
+        className="absolute right-3 top-3 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white transition-colors hover:bg-white/10"
+      >
+        <X className="h-4 w-4" />
+      </button>
       {children}
     </section>,
     document.body,
