@@ -40,8 +40,21 @@ const Cloud = ({ delay, y, duration, scale }) => (
   />
 );
 
+const resolveGoogleDriveVideoSource = (input) => {
+  if (typeof input !== "string") return input;
+  const match = input.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (match?.[1]) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+  return input;
+};
+
 const OVERLAY_BACKGROUND_VIDEOS = [
   { id: "hero-extra-1W0eh", src: "/hero-banner-extra-1W0eh.mp4" },
+  {
+    id: "drive-1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW",
+    src: resolveGoogleDriveVideoSource(
+      "https://drive.google.com/file/d/1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW/view?usp=sharing",
+    ),
+  },
   { id: "overlay-1dp9", src: "/overlay-1dp9.mp4" },
 ];
 

@@ -394,6 +394,24 @@ export default function RootLandingPage() {
                   data-testid="hero-banner-background-video"
                   data-bg-video
                   poster="/custom-hero-banner-poster.jpg"
+                  onEnded={() => {
+                    const video = bannerVideoRef.current;
+                    if (!video) return;
+                    video.currentTime = 0;
+                    const playPromise = video.play();
+                    if (playPromise && typeof playPromise.catch === "function") {
+                      playPromise.catch(() => {});
+                    }
+                  }}
+                  onError={() => {
+                    const video = bannerVideoRef.current;
+                    if (!video) return;
+                    video.load();
+                    const playPromise = video.play();
+                    if (playPromise && typeof playPromise.catch === "function") {
+                      playPromise.catch(() => {});
+                    }
+                  }}
                 >
                   <source src={activeBannerVideoSrc} type="video/mp4" />
                 </video>
