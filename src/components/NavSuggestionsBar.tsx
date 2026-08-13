@@ -76,14 +76,13 @@ export function NavSuggestionsBar() {
             whileHover={{ scale: 1.05, y: -1 }}
             whileTap={{ scale: 0.95 }}
             className={cn(
-              "group relative inline-flex min-h-[34px] items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-semibold whitespace-nowrap",
-              "border border-white/15 bg-gradient-to-r",
+              "group relative inline-flex min-h-[38px] items-center gap-2 rounded-full px-3 py-2 text-[11px] font-black whitespace-nowrap",
+              "mobile-suggestion-chip",
               chip.color || "from-white/8 to-white/5",
               "hover:border-white/30 hover:from-white/15 hover:to-white/12",
-              "transition-all shadow-sm hover:shadow-md",
             )}
           >
-            <span className="text-sm">{chip.emoji}</span>
+            <span className="mobile-suggestion-chip-icon text-sm">{chip.emoji}</span>
             <span className="text-white/90">{chip.label}</span>
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity" />
           </motion.button>
@@ -106,13 +105,13 @@ export function NavSuggestionsBar() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={cn(
-              "relative inline-flex min-h-[34px] items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-semibold whitespace-nowrap",
+              "relative inline-flex min-h-[38px] items-center gap-2 rounded-full px-3 py-2 text-[11px] font-black whitespace-nowrap",
+              "mobile-suggestion-chip",
               "border border-orange-400/40 bg-gradient-to-r from-orange-500/15 to-red-600/10",
               "hover:border-orange-400/60 hover:from-orange-500/25 hover:to-red-600/15",
-              "transition-all shadow-sm hover:shadow-[0_0_12px_rgba(249,115,22,0.3)]",
             )}
           >
-            <span className="animate-pulse">{trendingTopics[rotationIndex].emoji}</span>
+            <span className="mobile-suggestion-chip-icon animate-pulse text-sm">{trendingTopics[rotationIndex].emoji}</span>
             <span className="text-orange-300/90">{trendingTopics[rotationIndex].label}</span>
             <span className="text-[9px] text-orange-300/60 ml-0.5 font-mono">●</span>
           </motion.button>

@@ -384,6 +384,7 @@ export default function RootLandingPage() {
                   ref={bannerVideoRef}
                   className="hero-banner-video absolute inset-0 h-full w-full object-cover object-center"
                   autoPlay
+                  loop
                   muted
                   playsInline
                   preload="auto"
