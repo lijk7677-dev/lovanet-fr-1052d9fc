@@ -81,9 +81,14 @@ export const PremiumBorders = () => {
 
   useEffect(() => {
     if (!overlayQueue.length) return undefined;
+    const video = overlayVideoRef.current;
+    if (!video) return undefined;
+
     const playCurrentVideo = () => {
-      const video = overlayVideoRef.current;
-      if (!video) return;
+      video.pause();
+      video.currentTime = 0;
+      video.muted = true;
+      video.load();
       const playPromise = video.play();
       if (playPromise && typeof playPromise.catch === "function") {
         playPromise.catch(() => {});
@@ -92,7 +97,7 @@ export const PremiumBorders = () => {
 
     playCurrentVideo();
     return undefined;
-  }, [activeOverlayVideoId]);
+  }, [activeOverlayVideoId, overlayQueue.length]);
 
   // React to toggle changes via body attribute mutations
   useEffect(() => {
@@ -141,6 +146,18 @@ export const PremiumBorders = () => {
         data-bg-video
         src={activeOverlayVideo.src}
         onEnded={() => {
+          setOverlayQueue((currentQueue) => {
+            const nextQueue = currentQueue.slice(1);
+            if (!nextQueue.length) {
+              const resetQueue = shuffleArray(OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id));
+              setActiveOverlayVideoId(resetQueue[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
+              return resetQueue;
+            }
+            setActiveOverlayVideoId(nextQueue[0]);
+            return nextQueue;
+          });
+        }}
+        onError={() => {
           setOverlayQueue((currentQueue) => {
             const nextQueue = currentQueue.slice(1);
             if (!nextQueue.length) {
