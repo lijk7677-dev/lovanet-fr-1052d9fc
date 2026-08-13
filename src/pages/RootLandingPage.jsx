@@ -101,7 +101,7 @@ const catalogBatchSize = 12;
 const catalogRowSize = 6;
 // Home banners: index 0 -> Hero, index 1 -> Portal card 1, index 2 -> Portal card 2.
 const DEFAULT_HOME_BANNERS = [
-  { id: "b1", src: "/custom-hero-banner-web.mp4", label: "Bannière hero (haut)" },
+  { id: "b1", src: "https://drive.google.com/uc?export=download&id=1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW", label: "Bannière hero (haut)" },
   { id: "b2", src: "", label: "Carte du haut" },
   { id: "b3", src: "", label: "Carte Prime & vidéos (bas)" },
 ];
@@ -394,6 +394,22 @@ export default function RootLandingPage() {
                   data-testid="hero-banner-background-video"
                   data-bg-video
                   poster="/custom-hero-banner-poster.jpg"
+                  onPause={() => {
+                    const video = bannerVideoRef.current;
+                    if (!video || video.ended) return;
+                    const playPromise = video.play();
+                    if (playPromise && typeof playPromise.catch === "function") {
+                      playPromise.catch(() => {});
+                    }
+                  }}
+                  onWaiting={() => {
+                    const video = bannerVideoRef.current;
+                    if (!video || video.ended) return;
+                    const playPromise = video.play();
+                    if (playPromise && typeof playPromise.catch === "function") {
+                      playPromise.catch(() => {});
+                    }
+                  }}
                   onEnded={() => {
                     const video = bannerVideoRef.current;
                     if (!video) return;

@@ -48,13 +48,13 @@ const resolveGoogleDriveVideoSource = (input) => {
 };
 
 const OVERLAY_BACKGROUND_VIDEOS = [
-  { id: "hero-extra-1W0eh", src: "/hero-banner-extra-1W0eh.mp4" },
   {
     id: "drive-1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW",
     src: resolveGoogleDriveVideoSource(
       "https://drive.google.com/file/d/1PhEHfTonD9775y6-OPHcEEsB_4pC4TAW/view?usp=sharing",
     ),
   },
+  { id: "hero-extra-1W0eh", src: "/hero-banner-extra-1W0eh.mp4" },
   { id: "overlay-1dp9", src: "/overlay-1dp9.mp4" },
 ];
 
@@ -139,7 +139,7 @@ export const PremiumBorders = () => {
         autoPlay
         muted={true}
         playsInline
-        preload="auto"
+        preload="metadata"
         decoding="async"
         disablePictureInPicture
         className="absolute inset-0 w-full h-full object-cover z-[-1] opacity-60"
@@ -158,16 +158,21 @@ export const PremiumBorders = () => {
             return nextQueue;
           });
         }}
-        onError={() => {
-          setOverlayQueue((currentQueue) => {
-            const nextQueue = currentQueue.slice(1);
-            if (!nextQueue.length) {
-              setActiveOverlayVideoId(ORDERED_OVERLAY_VIDEO_IDS[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
-              return ORDERED_OVERLAY_VIDEO_IDS;
-            }
-            setActiveOverlayVideoId(nextQueue[0]);
-            return nextQueue;
-          });
+        onPause={() => {
+          const video = overlayVideoRef.current;
+          if (!video || video.ended) return;
+          const playPromise = video.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
+        }}
+        onWaiting={() => {
+          const video = overlayVideoRef.current;
+          if (!video || video.ended) return;
+          const playPromise = video.play();
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(() => {});
+          }
         }}
       />
 
