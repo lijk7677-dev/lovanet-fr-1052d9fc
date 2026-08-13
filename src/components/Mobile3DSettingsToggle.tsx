@@ -170,7 +170,6 @@ export function Mobile3DSettingsToggle() {
 
   const anyOff = !decorOverlayEnabled || disableVideos;
   const buttonRight = isDesktop ? 24 : 14;
-  const panelBottom = isDesktop ? 170 : 220;
 
   return (
     <>
