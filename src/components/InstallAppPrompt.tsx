@@ -37,14 +37,10 @@ export const InstallAppPrompt = () => {
     if (isStandalone()) return;
     if (!canShowPrompt()) return;
 
-    // Open a soft prompt even if beforeinstallprompt arrives late or not at all.
-    let fallbackTimer = window.setTimeout(() => {
-      setOpen(true);
-    }, 1800);
-
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BIPEvent);
+      setIosHint(false);
       setOpen(true);
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
@@ -69,7 +65,6 @@ export const InstallAppPrompt = () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
       if (timer) window.clearTimeout(timer);
-      window.clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -132,11 +127,7 @@ export const InstallAppPrompt = () => {
             <Share className="h-4 w-4 shrink-0" />
             Appuyez sur Partager, puis « Sur l'écran d'accueil »
           </p>
-        ) : !deferred ? (
-          <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
-            Ouvrez le menu du navigateur puis choisissez « Installer l'application ».
-          </p>
-        ) : (
+        ) : deferred ? (
           <button
             onClick={install}
             className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
@@ -144,6 +135,10 @@ export const InstallAppPrompt = () => {
             <Download className="h-4 w-4" />
             Installer l'application
           </button>
+        ) : (
+          <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
+            Préparation de l'installation en cours...
+          </p>
         )}
 
         <button onClick={dismiss} className="mt-3 w-full text-xs font-medium text-slate-400 hover:text-slate-600">
