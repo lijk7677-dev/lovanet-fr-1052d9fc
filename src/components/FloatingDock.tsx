@@ -7,7 +7,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
  * et regroupe les bulles flottantes (réduites).
  */
 export const FloatingDock = ({ children }: { children: ReactNode }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(display-mode: standalone)").matches && window.innerWidth <= 768;
+  });
   const [top, setTop] = useState(0.45);
 
   useEffect(() => {

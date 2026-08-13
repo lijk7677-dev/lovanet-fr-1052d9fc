@@ -93,13 +93,14 @@ export const InstallAppPrompt = () => {
 
   return (
     <div
-      className="fixed inset-0 z-[10050] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[10050] flex items-end sm:items-center justify-center bg-black/45 backdrop-blur-sm p-3 sm:p-4"
       role="dialog"
       aria-modal="true"
       onClick={dismiss}
     >
       <div
-        className="relative w-full max-w-sm rounded-3xl bg-white text-slate-900 shadow-2xl p-7 text-center animate-in fade-in zoom-in-95 duration-300"
+        className="relative w-full max-w-sm rounded-[1.75rem] bg-white text-slate-900 shadow-2xl px-5 pb-6 pt-6 text-center animate-in fade-in zoom-in-95 duration-300 sm:rounded-3xl sm:p-7"
+        style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))" }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -115,12 +116,15 @@ export const InstallAppPrompt = () => {
           alt="Logo Lovanet"
           width={160}
           height={160}
-          className="mx-auto h-36 w-36 rounded-[2rem] object-contain shadow-xl sm:h-40 sm:w-40"
+          className="mx-auto h-28 w-28 rounded-[1.5rem] object-contain shadow-xl sm:h-40 sm:w-40"
         />
 
-        <h2 className="mt-5 text-2xl font-bold tracking-tight">Installer Lovanet</h2>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">
+        <h2 className="mt-4 text-xl font-bold tracking-tight sm:mt-5 sm:text-2xl">Installer Lovanet</h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-slate-600 sm:text-sm">
           Lovanet Portail anime, manga, gaming, pop culture japonaise
+        </p>
+        <p className="mt-1 text-[12px] text-slate-500 sm:text-xs">
+          Version installable optimisee pour une navigation mobile plus fluide.
         </p>
 
         {iosHint && !deferred ? (
@@ -135,7 +139,7 @@ export const InstallAppPrompt = () => {
         ) : (
           <button
             onClick={install}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             <Download className="h-4 w-4" />
             Installer l'application

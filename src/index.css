@@ -3083,9 +3083,69 @@ body,
 }
 
 @media (display-mode: standalone) and (max-width: 768px) {
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+  }
+
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  header[data-testid="site-navbar"] {
+    top: env(safe-area-inset-top, 0px) !important;
+    padding-top: 0.25rem !important;
+  }
+
+  .mobile-sheet-panel {
+    height: calc(100dvh - env(safe-area-inset-top, 0px) - 0.35rem) !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 0.35rem) !important;
+  }
+
+  .floating-dock {
+    left: 0.15rem;
+    z-index: 9997;
+  }
+
+  .floating-dock-panel {
+    gap: 0.55rem;
+    padding: 0.45rem 0.35rem;
+    max-height: 62vh;
+  }
+
+  .floating-dock-slot {
+    width: 52px;
+    height: 54px;
+  }
+
+  .floating-dock-slot button,
+  .floating-dock-slot [role="button"] {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .floating-dock-slot button svg,
+  .floating-dock-slot [role="button"] svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .detached-bubble-panel,
+  .detached-bubble-panel--compact,
+  .detached-bubble-panel--catalog,
+  .detached-bubble-panel--settings,
+  .detached-bubble-panel--menu-skin {
+    left: 106px;
+    width: calc(100vw - 120px);
+    max-width: 330px;
+    max-height: 64vh;
+  }
+
   .root-hero-section {
     width: 100% !important;
-    padding-top: calc(0.9rem + env(safe-area-inset-top, 0px));
+    padding-top: calc(0.65rem + env(safe-area-inset-top, 0px));
     padding-left: 0.8rem;
     padding-right: 0.8rem;
   }
@@ -3093,6 +3153,7 @@ body,
   .root-hero-banner {
     min-height: 0 !important;
     aspect-ratio: 16 / 9;
+    max-height: 38vh;
   }
 
   .root-hero-content {
@@ -3100,7 +3161,8 @@ body,
   }
 
   .root-hero-banner .hero-banner-video {
-    object-fit: contain !important;
+    object-fit: cover !important;
+    object-position: center;
     background: #020611;
   }
 }
