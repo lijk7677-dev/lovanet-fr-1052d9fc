@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 const Leaf = ({ delay, x, duration }) => (
@@ -56,7 +56,6 @@ const OVERLAY_BACKGROUND_VIDEOS = [
   { id: "overlay-1836", src: "/overlay-1836.mp4" },
   { id: "overlay-1Hb1", src: "/overlay-1Hb1.mp4" },
 ];
-const OVERLAY_ROTATION_INTERVAL_MS = 22000;
 
 export const PremiumBorders = () => {
   const [hidden, setHidden] = useState(() => document.body.hasAttribute("data-hide-decors"));
@@ -70,6 +69,7 @@ export const PremiumBorders = () => {
   });
   const [overlayQueue, setOverlayQueue] = useState([]);
   const [activeOverlayVideoId, setActiveOverlayVideoId] = useState(OVERLAY_BACKGROUND_VIDEOS[0]?.id || "");
+  const overlayVideoRef = useRef(null);
 
   const activeOverlayVideo = OVERLAY_BACKGROUND_VIDEOS.find((video) => video.id === activeOverlayVideoId) || OVERLAY_BACKGROUND_VIDEOS[0];
 
@@ -81,20 +81,18 @@ export const PremiumBorders = () => {
 
   useEffect(() => {
     if (!overlayQueue.length) return undefined;
-    const interval = window.setInterval(() => {
-      setOverlayQueue((currentQueue) => {
-        const nextQueue = currentQueue.slice(1);
-        if (!nextQueue.length) {
-          const resetQueue = shuffleArray(OVERLAY_BACKGROUND_VIDEOS.map((video) => video.id));
-          setActiveOverlayVideoId(resetQueue[0] || OVERLAY_BACKGROUND_VIDEOS[0].id);
-          return resetQueue;
-        }
-        setActiveOverlayVideoId(nextQueue[0]);
-        return nextQueue;
-      });
-    }, OVERLAY_ROTATION_INTERVAL_MS);
-    return () => window.clearInterval(interval);
-  }, [overlayQueue.length]);
+    const playCurrentVideo = () => {
+      const video = overlayVideoRef.current;
+      if (!video) return;
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {});
+      }
+    };
+
+    playCurrentVideo();
+    return undefined;
+  }, [activeOverlayVideoId]);
 
   // React to toggle changes via body attribute mutations
   useEffect(() => {
@@ -129,6 +127,7 @@ export const PremiumBorders = () => {
     <div className="fixed inset-0 pointer-events-none z-[0] overflow-hidden" data-3d-decor data-animated-bg>
       {/* Global Background Video */}
       <video
+        ref={overlayVideoRef}
         key={activeOverlayVideoId}
         autoPlay
         muted={true}
