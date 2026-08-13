@@ -33,18 +33,18 @@ export const FloatingDock = ({ children }: { children: ReactNode }) => {
       style={{ top: `${top * 100}vh`, transform: "translateY(-50%)" }}
       data-testid="floating-dock"
     >
-      <div className="floating-dock-panel">
-        {children}
-      </div>
       <button
         type="button"
         onClick={() => setCollapsed((c) => !c)}
         className="floating-dock-handle"
         aria-label={collapsed ? "Afficher les outils" : "Masquer les outils"}
-        style={collapsed ? { marginLeft: "-0.35rem" } : undefined}
+        style={collapsed ? { marginRight: "-0.35rem" } : undefined}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>
+      <div className="floating-dock-panel">
+        {children}
+      </div>
     </div>
   );
 };
