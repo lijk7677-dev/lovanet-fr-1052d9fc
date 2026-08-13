@@ -22,6 +22,94 @@ function setCache(key: string, value: any) {
   cache.set(key, { at: Date.now(), value });
 }
 
+const DISALLOWED_HOST_SUFFIXES = [
+  "localhost",
+  ".localhost",
+  ".local",
+  ".internal",
+  ".test",
+  ".example",
+  ".invalid",
+];
+
+function isIPv4(value: string) {
+  return /^\d{1,3}(?:\.\d{1,3}){3}$/.test(value);
+}
+
+function parseIPv4(value: string) {
+  const parts = value.split(".").map((part) => Number(part));
+  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part) || part < 0 || part > 255)) return null;
+  return parts;
+}
+
+function isPrivateIPv4(value: string) {
+  const parts = parseIPv4(value);
+  if (!parts) return false;
+  const [a, b] = parts;
+  if (a === 10) return true;
+  if (a === 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 168) return true;
+  return false;
+}
+
+function isIPv6(value: string) {
+  return value.includes(":");
+}
+
+function isPrivateIPv6(value: string) {
+  const normalized = value.toLowerCase().replace(/^\[|\]$/g, "");
+  return (
+    normalized === "::1" ||
+    normalized.startsWith("fc") ||
+    normalized.startsWith("fd") ||
+    normalized.startsWith("fe80:")
+  );
+}
+
+function isBlockedHost(hostname: string) {
+  const lower = hostname.toLowerCase();
+  return DISALLOWED_HOST_SUFFIXES.some((suffix) => lower === suffix || lower.endsWith(suffix));
+}
+
+async function isPrivateTarget(hostname: string) {
+  if (isIPv4(hostname)) return isPrivateIPv4(hostname);
+  if (isIPv6(hostname)) return isPrivateIPv6(hostname);
+  if (isBlockedHost(hostname)) return true;
+
+  if (typeof Deno.resolveDns === "function") {
+    try {
+      const records = await Deno.resolveDns(hostname, "A");
+      if (records.some(isPrivateIPv4)) return true;
+    } catch {
+      // ignore DNS resolvers that fail for public names
+    }
+    try {
+      const records = await Deno.resolveDns(hostname, "AAAA");
+      if (records.some(isPrivateIPv6)) return true;
+    } catch {
+      // ignore DNS resolvers that fail for public names
+    }
+  }
+
+  return false;
+}
+
+function getRequestSecret(req: Request) {
+  const authHeader = req.headers.get("Authorization") || "";
+  return (
+    req.headers.get("x-sync-secret") ||
+    (authHeader.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null)
+  );
+}
+
+async function requireSyncSecret(req: Request) {
+  const secret = Deno.env.get("SYNC_SECRET");
+  const headerSecret = getRequestSecret(req);
+  return typeof secret === "string" && secret.length > 0 && headerSecret === secret;
+}
+
 /* ------------------------- persistent (DB) cache -------------------------- */
 const CACHE_DB_URL = Deno.env.get("SUPABASE_URL");
 const CACHE_DB_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -631,30 +719,54 @@ async function handleNewsDetail(slug: string) {
 async function handleImageProxy(url: URL) {
   const target = url.searchParams.get("url");
   if (!target) return json({ error: "missing-url" }, 400);
-  let origin = "";
+
+  let parsed: URL;
   try {
-    origin = new URL(target).origin;
+    parsed = new URL(target);
   } catch {
     return json({ error: "bad-url" }, 400);
   }
+
+  if (parsed.username || parsed.password) return json({ error: "bad-url" }, 400);
+  if (!["http:", "https:"].includes(parsed.protocol)) return json({ error: "unsupported-scheme" }, 400);
+  if (await isPrivateTarget(parsed.hostname)) return json({ error: "blocked-host" }, 403);
+
   const fallback = () => Response.redirect(target, 302);
   try {
     const res = await fetch(target, {
-      redirect: "follow",
+      redirect: "manual",
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
         Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
         "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8",
-        Referer: `${origin}/`,
+        Referer: `${parsed.origin}/`,
       },
     });
+
+    if (res.status >= 300 && res.status < 400 && res.headers.has("location")) {
+      const redirectUrl = res.headers.get("location") || "";
+      try {
+        const parsedRedirect = new URL(redirectUrl, target);
+        if (await isPrivateTarget(parsedRedirect.hostname)) {
+          return json({ error: "blocked-host" }, 403);
+        }
+      } catch {
+        return fallback();
+      }
+      return Response.redirect(redirectUrl, res.status);
+    }
+
     if (!res.ok) return fallback();
+
+    const contentType = String(res.headers.get("content-type") || "").toLowerCase();
+    if (!contentType.startsWith("image/")) return fallback();
+
     const body = await res.arrayBuffer();
     return new Response(body, {
       headers: {
         ...corsHeaders,
-        "Content-Type": res.headers.get("content-type") || "image/jpeg",
+        "Content-Type": contentType,
         "Cache-Control": "public, max-age=86400",
       },
     });
@@ -889,10 +1001,14 @@ Deno.serve(async (req) => {
     if (route === "news/image-proxy") return await handleImageProxy(url);
     if (route === "image-proxy") return await handleImageProxy(url);
     if (route === "sync/news" && req.method === "POST") {
+      if (!(await requireSyncSecret(req))) return json({ error: "unauthorized" }, 401);
       const items = await loadNews(true);
       return json({ ok: true, count: items.length, updated_at: new Date().toISOString() });
     }
-    if (route === "sync/refresh" || route === "refresh") return await handleRefresh(req, url);
+    if (route === "sync/refresh" || route === "refresh") {
+      if (!(await requireSyncSecret(req))) return json({ error: "unauthorized" }, 401);
+      return await handleRefresh(req, url);
+    }
     if (route === "news") return await handleNewsList(url);
     if (route.startsWith("news/")) return await handleNewsDetail(route.slice("news/".length));
     return json({ error: "not-found", route }, 404);

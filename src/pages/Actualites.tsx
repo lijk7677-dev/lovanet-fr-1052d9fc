@@ -33,6 +33,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 const PRIMARY_SITE = "https://lovanet.fr";
 import { API_BASE as API } from "@/lib/apiBase";
@@ -626,6 +627,7 @@ function Actualites() {
   const [category, setCategory] = useState("all");
   const [source, setSource] = useState("all");
   const [sort, setSort] = useState("trending");
+  const isAdmin = useIsAdmin();
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -1009,9 +1011,11 @@ function Actualites() {
               <h1 className="font-display text-3xl font-black">Flux indisponible temporairement</h1>
               <p className="max-w-2xl text-white/70">{error || "Le chargement des actualités réelles a échoué. Réessayez ou relancez une synchronisation des flux."}</p>
               <div className="flex flex-wrap gap-3">
-                <Button onClick={handleSync} className="btn-neon-rainbow rounded-full text-white" data-testid="actualites-retry-sync-button">
-                  <RefreshCcw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} /> Réessayer la synchronisation
-                </Button>
+                {isAdmin && (
+                  <Button onClick={handleSync} className="btn-neon-rainbow rounded-full text-white" data-testid="actualites-retry-sync-button">
+                    <RefreshCcw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} /> Réessayer la synchronisation
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
