@@ -111,7 +111,7 @@ export const InstallAppPrompt = () => {
         </button>
 
         <img
-          src="/lovanet-icon-512.png?v=5"
+          src="/lovanet-icon-512.png?v=6"
           alt="Logo Lovanet"
           width={160}
           height={160}

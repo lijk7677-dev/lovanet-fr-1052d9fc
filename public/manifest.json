@@ -11,8 +11,8 @@
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "icons": [
-    { "src": "/lovanet-icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
-    { "src": "/lovanet-icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
-    { "src": "/lovanet-icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+    { "src": "/lovanet-icon-192.png?v=6", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/lovanet-icon-512.png?v=6", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/lovanet-icon-512.png?v=6", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ]
 }
