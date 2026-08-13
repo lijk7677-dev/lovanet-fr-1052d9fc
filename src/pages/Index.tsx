@@ -293,22 +293,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* The static visual horizontal catalog block (AnimeMomentsPresentation) has been removed based on instructions. */}
-
-      <div className="container mx-auto px-4 lg:px-8 py-6">
-        <div className="relative w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-          <div className="aspect-[21/9] w-full">
-            <img
-              src={crystalCity.url}
-              alt="Crystalline skyline"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-        </div>
-      </div>
-
       <section className="container mx-auto px-4 lg:px-8 py-16">
         <div className="flex items-center justify-between gap-4 mb-4">
           <h2 className="font-display text-2xl sm:text-3xl font-bold">Nouveautés de la boutique anime</h2>
