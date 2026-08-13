@@ -233,7 +233,7 @@ export const Navbar = () => {
         <span className="absolute inset-[3px] rounded-[1.1rem] bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.9),rgba(255,255,255,0.18)_26%,rgba(89,204,255,0.26)_58%,rgba(86,35,163,0.38)_100%)] opacity-90" style={{ transform: "translateZ(-5px)" }} />
         <span className="absolute -inset-[1px] rounded-[1.4rem] bg-[conic-gradient(from_180deg_at_50%_50%,rgba(94,234,212,0)_0deg,rgba(94,234,212,0.75)_90deg,rgba(186,108,255,0.7)_180deg,rgba(255,255,255,0.12)_270deg,rgba(94,234,212,0)_360deg)] opacity-70 blur-[2px] animate-[rgb-spin_10s_linear_infinite]" style={{ transform: "translateZ(-10px)" }} />
         <img
-          src="/lovanet-logo-custom.png?v=8"
+          src="/lovanet-logo-custom.png?v=5"
           alt="Lovanet"
           className="relative z-10 h-full w-full rounded-[1.1rem] object-contain drop-shadow-[0_0_14px_rgba(255,255,255,0.42)]"
           style={{ transform: "translateZ(10px)" }}
