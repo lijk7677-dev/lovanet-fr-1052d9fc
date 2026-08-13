@@ -176,7 +176,7 @@ export const Navbar = () => {
   const renderLogo = () => (
     <Link
       to="/"
-      className="group inline-flex min-h-[44px] items-center rounded-full p-0.5"
+      className="group inline-flex min-h-[52px] items-center rounded-full p-0.5"
       aria-label="Lovanet — Portail"
       data-testid="header-home-logo-link"
       onClick={() => setOpen(false)}
@@ -186,7 +186,7 @@ export const Navbar = () => {
         whileHover={{ rotateY: 180, scale: 1.1, rotateX: 10 }}
         whileTap={{ scale: 0.9 }}
         transition={{ type: "spring", stiffness: 200, damping: 10 }}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-[1.35rem] border border-white/20 bg-white/10 p-[2px] shadow-[0_0_20px_rgba(96,229,255,0.24)] backdrop-blur-xl"
+        className="relative inline-flex h-14 w-14 items-center justify-center rounded-[1.35rem] border border-white/20 bg-white/10 p-[2px] shadow-[0_0_20px_rgba(96,229,255,0.24)] backdrop-blur-xl sm:h-16 sm:w-16"
         style={{ transformStyle: "preserve-3d" }}
       >
         <span className="absolute inset-[3px] rounded-[1.1rem] bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.9),rgba(255,255,255,0.18)_26%,rgba(89,204,255,0.26)_58%,rgba(86,35,163,0.38)_100%)] opacity-90" style={{ transform: "translateZ(-5px)" }} />
