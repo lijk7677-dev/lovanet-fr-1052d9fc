@@ -280,12 +280,12 @@ export function Mobile3DSettingsToggle() {
                           >
                             <span style={{
                               width: 14, height: 14, borderRadius: 4,
-                              border: `1.5px solid ${status.all ? "#ffffff" : status.some ? "#ffffff" : "rgba(255,255,255,0.2)"}`,
-                              background: status.all ? "rgba(255,255,255,0.95)" : status.some ? "rgba(255,255,255,0.45)" : "transparent",
+                              border: `1.5px solid ${status.all ? "rgba(255,255,255,0.72)" : status.some ? "rgba(255,255,255,0.52)" : "rgba(255,255,255,0.16)"}`,
+                              background: status.all ? "rgba(255,255,255,0.14)" : status.some ? "rgba(255,255,255,0.08)" : "transparent",
                               display: "flex", alignItems: "center", justifyContent: "center",
                             }}>
                               {status.all && <Check size={9} color="#000" />}
-                              {status.some && <span style={{ width: 6, height: 2, background: "#fff", borderRadius: 2, display: "block" }} />}
+                              {status.some && <span style={{ width: 6, height: 2, background: "rgba(255,255,255,0.88)", borderRadius: 2, display: "block" }} />}
                             </span>
                           </button>
 
@@ -297,7 +297,7 @@ export function Mobile3DSettingsToggle() {
                               flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between",
                               gap: 6, padding: "7px 10px 7px 4px", border: "none",
                               background: "transparent", cursor: "pointer",
-                              color: status.some || status.all ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.55)",
+                              color: status.some || status.all ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.45)",
                               fontSize: 12, fontWeight: 600,
                             }}
                           >
@@ -339,13 +339,13 @@ export function Mobile3DSettingsToggle() {
                 <div style={{ display: "flex", gap: 5, paddingTop: 2 }}>
                   <button type="button" onClick={() => setActiveDecors(ALL_KEYS)} style={{
                     flex: 1, padding: "7px 0", borderRadius: 10, fontSize: 11, fontWeight: 600,
-                    border: "1px solid rgba(255,255,255,0.32)", background: "rgba(255,255,255,0.12)",
-                    color: "#ffffff", cursor: "pointer",
+                    border: "1px solid rgba(255,255,255,0.22)", background: "rgba(255,255,255,0.08)",
+                    color: "rgba(255,255,255,0.92)", cursor: "pointer",
                   }}>Tout activer</button>
                   <button type="button" onClick={() => setActiveDecors([])} style={{
                     flex: 1, padding: "7px 0", borderRadius: 10, fontSize: 11, fontWeight: 600,
-                    border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)",
-                    color: "rgba(255,255,255,0.45)", cursor: "pointer",
+                    border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)",
+                    color: "rgba(255,255,255,0.65)", cursor: "pointer",
                   }}>Tout effacer</button>
                 </div>
               </>
