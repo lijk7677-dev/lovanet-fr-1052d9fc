@@ -107,6 +107,14 @@ const DEFAULT_HOME_BANNERS = [
 const BANNER_STATE_KEY = "lovanet.home.banners.v2";
 const BANNER_SLOT_LABELS = ["Emplacement 1 · Hero", "Emplacement 2 · Carte", "Emplacement 3 · Carte"];
 
+const ROTATING_HERO_BANNER_VIDEOS = [
+  {
+    id: "hero-drive-banner-extra",
+    desktop: "/hero-banner-extra-1W0eh.mp4",
+    mobile: "/hero-banner-extra-1W0eh.mp4",
+  },
+];
+
 const loadHomeBanners = () => {
   const byId = Object.fromEntries(DEFAULT_HOME_BANNERS.map((b) => [b.id, b]));
   try {
@@ -139,9 +147,30 @@ export default function RootLandingPage() {
 
   const [homeBanners, setHomeBanners] = useState(loadHomeBanners);
   const dragIndexRef = useRef(null);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+  const [bannerVideoQueue, setBannerVideoQueue] = useState([]);
+  const [activeBannerVideoId, setActiveBannerVideoId] = useState("");
 
   const heroBanner = homeBanners[0];
   const cardBanners = [homeBanners[1], homeBanners[2]];
+
+  const heroBannerVideoSources = useMemo(() => {
+    const primary = {
+      id: "hero-default",
+      desktop: heroBanner?.src || "/custom-hero-banner-web.mp4",
+      mobile: heroBanner?.src || "/custom-hero-banner-mobile.mp4",
+    };
+    return [primary, ...ROTATING_HERO_BANNER_VIDEOS];
+  }, [heroBanner?.src]);
+
+  const activeBannerVideo = useMemo(
+    () => heroBannerVideoSources.find((video) => video.id === activeBannerVideoId) ?? heroBannerVideoSources[0],
+    [activeBannerVideoId, heroBannerVideoSources],
+  );
+
+  const activeBannerVideoSrc = isMobileScreen
+    ? activeBannerVideo.mobile || activeBannerVideo.desktop
+    : activeBannerVideo.desktop || activeBannerVideo.mobile;
 
   const persistBanners = (next) => {
     setHomeBanners(next);
@@ -171,6 +200,18 @@ export default function RootLandingPage() {
       homeBanners.map((b) => (b.id === id ? { ...b, visible: !(b.visible !== false) } : b))
     );
   };
+
+  const advanceBannerVideo = () =>
+    setBannerVideoQueue((currentQueue) => {
+      const nextQueue = currentQueue.slice(1);
+      if (!nextQueue.length) {
+        const resetQueue = shuffleArray(heroBannerVideoSources.map((video) => video.id));
+        setActiveBannerVideoId(resetQueue[0]);
+        return resetQueue;
+      }
+      setActiveBannerVideoId(nextQueue[0]);
+      return nextQueue;
+    });
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -236,7 +277,22 @@ export default function RootLandingPage() {
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {});
     }
-  }, [heroBanner?.id, heroBanner?.visible]);
+  }, [heroBanner?.id, heroBanner?.visible, activeBannerVideoSrc]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 768px)");
+    const updateMobile = () => setIsMobileScreen(media.matches);
+    updateMobile();
+    media.addEventListener?.("change", updateMobile);
+    return () => media.removeEventListener?.("change", updateMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!heroBannerVideoSources.length) return;
+    const queue = shuffleArray(heroBannerVideoSources.map((video) => video.id));
+    setBannerVideoQueue(queue);
+    setActiveBannerVideoId(queue[0]);
+  }, [heroBannerVideoSources]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -340,11 +396,12 @@ export default function RootLandingPage() {
             >
               {heroBanner && heroBanner.visible !== false ? (
                 <video
+                  key={activeBannerVideoSrc}
                   ref={bannerVideoRef}
                   className="hero-banner-video absolute inset-0 h-full w-full object-cover object-center"
+                  src={activeBannerVideoSrc}
                   autoPlay
                   muted
-                  loop
                   playsInline
                   preload="auto"
                   decoding="async"
@@ -353,10 +410,9 @@ export default function RootLandingPage() {
                   data-testid="hero-banner-background-video"
                   data-bg-video
                   poster="/custom-hero-banner-poster.jpg"
-                >
-                  <source src="/custom-hero-banner-mobile.mp4" type="video/mp4" media="(max-width: 768px)" />
-                  <source src={heroBanner.src} type="video/mp4" />
-                </video>
+                  onEnded={advanceBannerVideo}
+                  onError={advanceBannerVideo}
+                />
               ) : (
                 <div
                   className="absolute inset-0 h-full w-full bg-cover bg-center bg-black/80"

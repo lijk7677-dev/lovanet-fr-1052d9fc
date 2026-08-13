@@ -116,10 +116,10 @@ export const InstallAppPrompt = () => {
     deviceClass === "ios"
       ? "Appuyez sur Partager, puis « Sur l'ecran d'accueil »"
       : deviceClass === "tablet"
-        ? "Sur tablette, utilisez l'option « Installer l'application » dans le menu du navigateur si le bouton direct n'apparait pas."
+        ? "Sur tablette, utilisez l'option « Installer l'application » dans le menu du navigateur si le bouton direct n'apparaît pas."
         : deviceClass === "desktop"
-          ? "Sur PC, utilisez l'icone d'installation dans la barre d'adresse ou le menu du navigateur."
-          : "Sur mobile Android, l'installation directe s'active automatiquement quand le navigateur la propose.";
+          ? "Sur PC, utilisez l'icône d'installation dans la barre d'adresse ou le menu du navigateur."
+          : "Sur mobile Android, utilisez le menu du navigateur et choisissez « Installer l'application » si le bouton direct n'apparaît pas.";
 
   const audienceLabel =
     deviceClass === "ios"
