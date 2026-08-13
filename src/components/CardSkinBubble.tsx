@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Layers, Move, X } from "lucide-react";
+import { DetachedBubblePanel } from "@/components/DetachedBubblePanel";
 
 /**
  * Floating bubble (bottom-left) that themes catalog/preview CARDS.
@@ -298,17 +299,17 @@ export const CardSkinBubble = () => {
 
   return (
     <>
-      {open && panelPos && (
+      <DetachedBubblePanel
+        panelId="card-skin"
+        open={open}
+        onClose={() => setOpen(false)}
+        className="detached-bubble-panel--compact"
+      >
         <div
           ref={panelRef}
-          className="fixed z-[10050] touch-none rounded-2xl border border-white/40 bg-white/20 p-3 text-white shadow-[0_20px_56px_rgba(0,0,0,0.3)] backdrop-blur-2xl w-[min(90vw,290px)]"
-          style={{ left: `${panelPos.x}px`, top: `${panelPos.y}px` }}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
+          className="p-3 text-white"
         >
-          <div className="mb-2 flex cursor-grab select-none items-center justify-between gap-2">
+          <div className="mb-3 flex select-none items-center justify-between gap-2 border-b border-white/15 pb-2">
             <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.25em] text-white/70">
               <Move className="h-3.5 w-3.5" />
               Apparence des cartes
@@ -341,7 +342,7 @@ export const CardSkinBubble = () => {
             {SKINS.find((s) => s.key === active)?.label}
           </p>
         </div>
-      )}
+      </DetachedBubblePanel>
       <button
         type="button"
         onClick={() => {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Move, Sparkles, X } from "lucide-react";
+import { DetachedBubblePanel } from "@/components/DetachedBubblePanel";
 
 /**
  * Floating bubble anchored to the middle of the RIGHT edge.
@@ -326,19 +327,20 @@ export const CatalogCardColorBubble = () => {
 
   return (
     <>
-      {open && panelPos && (
+      <DetachedBubblePanel
+        panelId="catalog-color"
+        open={open}
+        onClose={() => setOpen(false)}
+        className="detached-bubble-panel--catalog"
+      >
         <div
           ref={panelRef}
-          className="fixed z-[10050] touch-none rounded-2xl border border-white/45 bg-[rgba(255,255,255,0.18)] p-3 text-white shadow-[0_20px_56px_rgba(0,0,0,0.3)] backdrop-blur-2xl w-[min(90vw,340px)] max-h-[80vh] overflow-y-auto"
-          style={{ left: `${panelPos.x}px`, top: `${panelPos.y}px` }}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
+          className="p-3 text-white"
         >
-          <div className="mb-2 flex cursor-grab select-none items-center justify-between gap-2">
-            <span className="inline-flex items-center text-white/70" aria-hidden="true">
+          <div className="mb-3 flex select-none items-center justify-between gap-2 border-b border-white/15 pb-2">
+            <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-white/70">
               <Move className="h-3.5 w-3.5" />
+              Couleur des cartes
             </span>
             <button
               type="button"
@@ -371,7 +373,7 @@ export const CatalogCardColorBubble = () => {
             ))}
           </div>
         </div>
-      )}
+      </DetachedBubblePanel>
       {/* Orb button stays fixed on right edge, vertically centered */}
       <button
         type="button"
