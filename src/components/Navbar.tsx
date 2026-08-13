@@ -42,6 +42,7 @@ import { MobileNavFloater } from "@/components/MobileNavFloater";
 import { NavSuggestionsBar } from "@/components/NavSuggestionsBar";
 import QuickNavCarousel from "@/components/QuickNavCarousel";
 import MobileMenuMiniWindow from "@/components/MobileMenuMiniWindow";
+import { MINI_MENU_STATE_EVENT, MINI_MENU_TOGGLE_EVENT } from "@/components/SuggestionsBubble";
 const navTestIds: Record<string, string> = {
   "/": "navbar-home-link",
   "/anime-moments": "navbar-anime-moments-link",
@@ -138,8 +139,21 @@ export const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    const onToggleMiniMenu = () => {
+      setOpen(false);
+      setMinimized((value) => !value);
+    };
+    window.addEventListener(MINI_MENU_TOGGLE_EVENT, onToggleMiniMenu);
+    return () => window.removeEventListener(MINI_MENU_TOGGLE_EVENT, onToggleMiniMenu);
+  }, []);
+
+  useEffect(() => {
     window.dispatchEvent(new CustomEvent("lovanet:suggestions-state", { detail: { open: floatingMenuOpen } }));
   }, [floatingMenuOpen]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent(MINI_MENU_STATE_EVENT, { detail: { open: minimized } }));
+  }, [minimized]);
 
   useEffect(() => {
     localStorage.setItem("lovanet.mnav.minimized", minimized ? "1" : "0");
