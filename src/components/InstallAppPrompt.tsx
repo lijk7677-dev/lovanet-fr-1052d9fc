@@ -6,12 +6,25 @@ type BIPEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-const DISMISS_KEY = "lovanet.install.dismissed";
+const DISMISS_UNTIL_KEY = "lovanet.install.dismissedUntil.v2";
+const DISMISS_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
 const isStandalone = () =>
   window.matchMedia("(display-mode: standalone)").matches ||
   // iOS Safari
   (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+
+const canShowPrompt = () => {
+  try {
+    const raw = localStorage.getItem(DISMISS_UNTIL_KEY);
+    if (!raw) return true;
+    const until = Number(raw);
+    if (!Number.isFinite(until)) return true;
+    return Date.now() >= until;
+  } catch {
+    return true;
+  }
+};
 
 export const InstallAppPrompt = () => {
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
@@ -22,7 +35,12 @@ export const InstallAppPrompt = () => {
     if (typeof window === "undefined") return;
     if (window.self !== window.top) return; // never inside preview iframe
     if (isStandalone()) return;
-    if (localStorage.getItem(DISMISS_KEY) === "1") return;
+    if (!canShowPrompt()) return;
+
+    // Open a soft prompt even if beforeinstallprompt arrives late or not at all.
+    let fallbackTimer = window.setTimeout(() => {
+      setOpen(true);
+    }, 1800);
 
     const onPrompt = (e: Event) => {
       e.preventDefault();
@@ -43,7 +61,7 @@ export const InstallAppPrompt = () => {
 
     const onInstalled = () => {
       setOpen(false);
-      localStorage.setItem(DISMISS_KEY, "1");
+      localStorage.setItem(DISMISS_UNTIL_KEY, String(Date.now() + 90 * 24 * 60 * 60 * 1000));
     };
     window.addEventListener("appinstalled", onInstalled);
 
@@ -51,16 +69,20 @@ export const InstallAppPrompt = () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
       window.removeEventListener("appinstalled", onInstalled);
       if (timer) window.clearTimeout(timer);
+      window.clearTimeout(fallbackTimer);
     };
   }, []);
 
   const dismiss = () => {
     setOpen(false);
-    localStorage.setItem(DISMISS_KEY, "1");
+    localStorage.setItem(DISMISS_UNTIL_KEY, String(Date.now() + DISMISS_COOLDOWN_MS));
   };
 
   const install = async () => {
-    if (!deferred) return;
+    if (!deferred) {
+      dismiss();
+      return;
+    }
     await deferred.prompt();
     await deferred.userChoice;
     setDeferred(null);
@@ -105,6 +127,10 @@ export const InstallAppPrompt = () => {
           <p className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
             <Share className="h-4 w-4 shrink-0" />
             Appuyez sur Partager, puis « Sur l'écran d'accueil »
+          </p>
+        ) : !deferred ? (
+          <p className="mt-5 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-700">
+            Ouvrez le menu du navigateur puis choisissez « Installer l'application ».
           </p>
         ) : (
           <button

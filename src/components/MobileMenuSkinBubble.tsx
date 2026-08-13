@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PanelsTopLeft, X } from "lucide-react";
+import { DetachedBubblePanel } from "@/components/DetachedBubblePanel";
 
 /**
  * Bulle flottante : personnalisation du MENU MOBILE (grand panneau, sections, texte).
@@ -98,11 +99,27 @@ export const MobileMenuSkinBubble = () => {
 
   return (
     <div className="relative flex items-center">
-      {open && (
-        <div className="dock-popup absolute bottom-full left-0 mb-3 z-[10000] w-[300px] max-h-[62vh] overflow-y-auto rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl animate-scale-in">
-          <p className="mb-2 px-1 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            Couleurs du menu mobile (50)
-          </p>
+      <DetachedBubblePanel
+        panelId="mobile-menu-skin"
+        open={open}
+        onClose={() => setOpen(false)}
+        className="detached-bubble-panel--menu-skin"
+      >
+        <div className="p-3 text-white">
+          <div className="mb-2 flex items-center justify-between gap-2 border-b border-white/15 pb-2">
+            <p className="px-1 text-[10px] uppercase tracking-[0.25em] text-white/70">
+              Couleurs du menu mobile (50)
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Fermer le panneau couleurs du menu mobile"
+              className="rounded-md border border-white/25 bg-white/10 p-1.5 text-white/80 transition-colors hover:bg-white/20"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
           <div className="grid grid-cols-5 gap-2">
             {PRESETS.map((p) => (
               <button
@@ -111,7 +128,7 @@ export const MobileMenuSkinBubble = () => {
                 title={p.label}
                 aria-label={p.label}
                 className={`relative h-11 w-full overflow-hidden rounded-lg border transition-transform hover:scale-105 ${
-                  active === p.key ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""
+                  active === p.key ? "ring-2 ring-cyan-300/80 ring-offset-1 ring-offset-transparent" : ""
                 }`}
                 style={{
                   background: `${p.panel}, repeating-conic-gradient(hsl(var(--muted)) 0% 25%, hsl(var(--background)) 0% 50%) 0 0 / 10px 10px`,
@@ -128,9 +145,11 @@ export const MobileMenuSkinBubble = () => {
               </button>
             ))}
           </div>
-          <p className="mt-2 px-1 text-[10px] text-muted-foreground">{current?.label}</p>
+
+          <p className="mt-2 px-1 text-[10px] text-white/65">{current?.label}</p>
         </div>
-      )}
+      </DetachedBubblePanel>
+
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Couleurs du menu mobile"

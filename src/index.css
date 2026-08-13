@@ -2961,6 +2961,10 @@ body,
 .detached-bubble-panel--compact { width: min(290px, calc(100vw - clamp(212px, 17vw, 300px))); }
 .detached-bubble-panel--catalog { width: min(340px, calc(100vw - clamp(212px, 17vw, 300px))); }
 .detached-bubble-panel--settings { width: min(320px, calc(100vw - clamp(212px, 17vw, 300px))); }
+.detached-bubble-panel--menu-skin {
+  width: min(356px, calc(100vw - clamp(212px, 17vw, 300px)));
+  max-height: min(80vh, 640px);
+}
 
 @keyframes detached-panel-enter {
   from { opacity: 0; transform: translate(12px, -50%); }
@@ -3069,7 +3073,8 @@ body,
   .detached-bubble-panel,
   .detached-bubble-panel--compact,
   .detached-bubble-panel--catalog,
-  .detached-bubble-panel--settings {
+  .detached-bubble-panel--settings,
+  .detached-bubble-panel--menu-skin {
     left: 118px;
     width: calc(100vw - 134px);
     max-width: 340px;
