@@ -207,16 +207,8 @@ const apply = (s: Skin) => {
   }
   r.setProperty("--catalog-card-bg", s.bg);
   r.setProperty("--catalog-card-fg", s.fg);
-  r.setProperty("--catalog-card-border", s.border);
+        className="fixed right-2 top-1/2 z-[60] flex h-12 w-12 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border border-white/35 bg-white/10 text-white shadow-[0_0_18px_rgba(255,255,255,0.18)] backdrop-blur-xl transition-all hover:scale-110 hover:bg-white/16 sm:right-3"
   r.setProperty("--catalog-card-anim", s.animated ? "lovanet-bg-shift 14s ease infinite" : "none");
-  r.setProperty("--catalog-card-size", s.animated ? "400% 400%" : "auto");
-};
-
-export const CatalogCardColorBubble = () => {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<string>("off");
-  const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
-  const isDraggingRef = useRef(false);
   const dragOffsetRef = useRef<{ x: number; y: number } | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
@@ -385,16 +377,8 @@ export const CatalogCardColorBubble = () => {
           });
         }}
         aria-label="Couleur des cartes du catalogue"
-        className="fixed right-2 top-1/2 z-[60] flex h-12 w-12 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border border-border shadow-[0_10px_30px_hsl(var(--primary)/0.45)] backdrop-blur-xl transition-all hover:scale-110 sm:right-3"
+        className="fixed right-2 top-1/2 z-[60] flex h-12 w-12 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border border-white/35 bg-white/10 text-white shadow-[0_0_18px_rgba(255,255,255,0.18)] backdrop-blur-xl transition-all hover:scale-110 hover:bg-white/16 sm:right-3"
       >
-        <span
-          className="absolute inset-0 opacity-80"
-          style={{
-            background: "conic-gradient(from 0deg,#00ffff,#ff00d4,#ffd700,#39ff14,#00ffff)",
-            backgroundSize: "300% 300%",
-            animation: "lovanet-bg-shift 6s ease infinite",
-          }}
-        />
         <span className="relative z-10 text-white drop-shadow">
           {open ? <X className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
         </span>

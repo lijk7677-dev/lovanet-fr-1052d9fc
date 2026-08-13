@@ -153,7 +153,7 @@ export const MobileMenuSkinBubble = () => {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Couleurs du menu mobile"
-        className="relative flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card/90 shadow-[0_10px_30px_hsl(var(--primary)/0.45)] backdrop-blur-xl transition-all hover:scale-110"
+        className="relative flex h-12 w-12 items-center justify-center rounded-full border border-white/35 bg-white/10 text-white shadow-[0_0_18px_rgba(255,255,255,0.18)] backdrop-blur-xl transition-all hover:scale-110 hover:bg-white/16"
       >
         {open ? <X className="h-5 w-5" /> : <PanelsTopLeft className="h-5 w-5" />}
       </button>
